@@ -1,4 +1,5 @@
 "use client";
+import { t, tv } from "@/lib/i18n";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
@@ -41,47 +42,47 @@ export default function AwardeesPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Module 05 · Awardee intelligence" title="Who receives the contracts"
-        description="Companies with verified (synthetic) awards — organised by sector, buyer, region, volume and value. Explore which companies dominate each segment."
-        actions={<button className="btn" onClick={exportCsv}><Download size={14} /> Export awards CSV</button>} />
-      <MarketFilterBar mf={mf} right={<SelectFilter label="Awarding buyer" value={buyer} onChange={setBuyer} width="w-56" options={[{ value: "", label: "All buyers" }, ...c.ds.buyers.map((b) => ({ value: b.id, label: `${b.acronym} — ${b.name}` }))]} />} />
+      <PageHeader eyebrow={t("Module 05 · Awardee intelligence")} title={t("Who receives the contracts")}
+        description={t("Companies with verified (synthetic) awards — organised by sector, buyer, region, volume and value. Explore which companies dominate each segment.")}
+        actions={<button className="btn" onClick={exportCsv}><Download size={14} /> {t("Export awards CSV")}</button>} />
+      <MarketFilterBar mf={mf} right={<SelectFilter label={t("Awarding buyer")} value={buyer} onChange={setBuyer} width="w-56" options={[{ value: "", label: t("All buyers") }, ...c.ds.buyers.map((b) => ({ value: b.id, label: `${b.acronym} — ${b.name}` }))]} />} />
       <div className="px-5 pt-5 md:px-8">
         <FigureStrip items={[
-          { label: "Awards in selection", value: awards.length, sub: `${awards.filter((a) => a.amount === null).length} without published amount` },
-          { label: "Distinct awardees", value: awardees.length, sub: `${awardees.filter((a) => a.awards >= 2).length} with 2+ awards` },
-          { label: "Total award value", value: f.mad(totalValue), sub: `median ${f.mad([...awards.map((a) => a.amount ?? 0)].sort((a, b) => a - b)[Math.floor(awards.length / 2)])}` },
-          { label: "Repeat relationships", value: awardees.reduce((a, x) => a + x.repeat, 0), sub: "awardee × buyer pairs with ≥2 awards" },
+          { label: t("Awards in selection"), value: awards.length, sub: t("{v0} without published amount", { v0: awards.filter((a) => a.amount === null).length }) },
+          { label: t("Distinct awardees"), value: awardees.length, sub: t("{v0} with 2+ awards", { v0: awardees.filter((a) => a.awards >= 2).length }) },
+          { label: t("Total award value"), value: f.mad(totalValue), sub: t("median {v0}", { v0: f.mad([...awards.map((a) => a.amount ?? 0)].sort((a, b) => a - b)[Math.floor(awards.length / 2)]) }) },
+          { label: t("Repeat relationships"), value: awardees.reduce((a, x) => a + x.repeat, 0), sub: t("awardee × buyer pairs with ≥2 awards") },
         ]} />
       </div>
-      <Section index="01" title="Leading awardees" kicker="Ranking by number of awards or by total award value. Value excludes awards whose amount was not published."
-        actions={<Tabs value={rank} onChange={setRank} tabs={[{ id: "awards", label: "By awards" }, { id: "value", label: "By value" }]} />}>
-        <BarList showRank labelWidth="w-[38%]" rows={ranked.map((a) => ({ key: a.id, label: a.name, href: `/competitors/${a.id}`, sub: `${a.sector} · ${a.buyers} buyer(s)${a.repeat ? ` · ${a.repeat} repeat` : ""}`, value: rank === "awards" ? a.awards : a.value, display: rank === "awards" ? `${a.awards} · ${f.pct(a.share)}` : f.mad(a.value) }))} />
-        <ChartNote n={awards.length} unit="awards" period={mf.periodLabel} note="period filters on tender publication date" />
+      <Section index="01" title={t("Leading awardees")} kicker={t("Ranking by number of awards or by total award value. Value excludes awards whose amount was not published.")}
+        actions={<Tabs value={rank} onChange={setRank} tabs={[{ id: "awards", label: t("By awards") }, { id: "value", label: t("By value") }]} />}>
+        <BarList showRank labelWidth="w-[38%]" rows={ranked.map((a) => ({ key: a.id, label: a.name, href: `/competitors/${a.id}`, sub: a.repeat ? t("{sector} · {n} buyer(s) · {r} repeat", { sector: a.sector, n: a.buyers, r: a.repeat }) : t("{sector} · {n} buyer(s)", { sector: a.sector, n: a.buyers }), value: rank === "awards" ? a.awards : a.value, display: rank === "awards" ? `${a.awards} · ${f.pct(a.share)}` : f.mad(a.value) }))} />
+        <ChartNote n={awards.length} unit={t("awards")} period={mf.periodLabel} note={t("period filters on tender publication date")} />
       </Section>
-      <Section index="02" title="Sector dominance" kicker="For each sector: the leading awardee by award value, its share, top-5 share and HHI. Small samples (<8 awards) are flagged.">
+      <Section index="02" title={t("Sector dominance")} kicker={t("For each sector: the leading awardee by award value, its share, top-5 share and HHI. Small samples (<8 awards) are flagged.")}>
         <DataTable rows={sectors} rowKey={(r) => r.key} dense pageSize={20} initialSort={{ key: "aw", dir: "desc" }}
           columns={[
-            { key: "s", header: "Sector", sort: (r) => r.label, render: (r) => <Link href={`/market?sector=${r.key}`} className="font-medium hover:text-accent-700">{r.label}</Link> },
-            { key: "aw", header: "Awards", align: "right", sort: (r) => r.awards, render: (r) => r.awards },
-            { key: "n", header: "Awardees", align: "right", sort: (r) => r.awardees, render: (r) => r.awardees },
-            { key: "t", header: "Leading awardee", render: (r) => r.top1 ? <Link href={`/competitors/${r.top1.id}`} className="hover:text-accent-700">{r.top1.name}</Link> : "—" },
-            { key: "ts", header: "Lead share", align: "right", sort: (r) => r.top1?.share, render: (r) => f.pct(r.top1?.share) },
-            { key: "t5", header: "Top-5 share", align: "right", hideBelow: "md", sort: (r) => r.top5Share, render: (r) => f.pct(r.top5Share) },
-            { key: "h", header: "HHI", align: "right", sort: (r) => r.hhiValue, render: (r) => Math.round(r.hhiValue ?? 0) },
-            { key: "b", header: "Reading", render: (r) => <span className="flex gap-1"><Badge tone={r.band === "Highly concentrated" ? "red" : r.band === "Moderately concentrated" ? "amber" : "green"}>{r.band}</Badge>{r.smallSample && <Badge>small n</Badge>}</span> },
+            { key: "s", header: t("Sector"), sort: (r) => r.label, render: (r) => <Link href={`/market?sector=${r.key}`} className="font-medium hover:text-accent-700">{r.label}</Link> },
+            { key: "aw", header: t("Awards"), align: "right", sort: (r) => r.awards, render: (r) => r.awards },
+            { key: "n", header: t("Awardees"), align: "right", sort: (r) => r.awardees, render: (r) => r.awardees },
+            { key: "t", header: t("Leading awardee"), render: (r) => r.top1 ? <Link href={`/competitors/${r.top1.id}`} className="hover:text-accent-700">{r.top1.name}</Link> : "—" },
+            { key: "ts", header: t("Lead share"), align: "right", sort: (r) => r.top1?.share, render: (r) => f.pct(r.top1?.share) },
+            { key: "t5", header: t("Top-5 share"), align: "right", hideBelow: "md", sort: (r) => r.top5Share, render: (r) => f.pct(r.top5Share) },
+            { key: "h", header: t("HHI"), align: "right", sort: (r) => r.hhiValue, render: (r) => Math.round(r.hhiValue ?? 0) },
+            { key: "b", header: t("Reading"), render: (r) => <span className="flex gap-1"><Badge tone={r.band === "Highly concentrated" ? "red" : r.band === "Moderately concentrated" ? "amber" : "green"}>{tv(r.band)}</Badge>{r.smallSample && <Badge>{t("small n")}</Badge>}</span> },
           ]} />
       </Section>
-      <Section index="03" title="Awardee directory" kicker="All companies with at least one award in the selection.">
+      <Section index="03" title={t("Awardee directory")} kicker={t("All companies with at least one award in the selection.")}>
         <DataTable rows={awardees} rowKey={(a) => a.id} rowHref={(a) => `/competitors/${a.id}`} pageSize={15} dense initialSort={{ key: "aw", dir: "desc" }}
           columns={[
-            { key: "n", header: "Awardee", sort: (a) => a.name, render: (a) => <div><div className="font-medium">{a.name}</div><div className="text-[11.5px] text-ink-500">{a.sector}</div></div> },
-            { key: "aw", header: "Awards", align: "right", sort: (a) => a.awards, render: (a) => a.awards },
-            { key: "v", header: "Total value", align: "right", sort: (a) => a.value, render: (a) => f.mad(a.value, { unit: false }) },
-            { key: "avg", header: "Avg. award", align: "right", hideBelow: "lg", sort: (a) => a.avg, render: (a) => f.mad(a.avg, { unit: false }) },
-            { key: "b", header: "Buyers", align: "right", sort: (a) => a.buyers, render: (a) => a.buyers },
-            { key: "r", header: "Repeat buyers", align: "right", sort: (a) => a.repeat, render: (a) => a.repeat },
-            { key: "g", header: "Regions", align: "right", hideBelow: "md", sort: (a) => a.regions, render: (a) => a.regions },
-            { key: "p", header: "Active period", hideBelow: "xl", sort: (a) => a.last, render: (a) => <span className="tnum text-[11.5px] text-ink-500">{f.shortDate(a.first)} → {f.shortDate(a.last)}</span> },
+            { key: "n", header: t("Awardee"), sort: (a) => a.name, render: (a) => <div><div className="font-medium">{a.name}</div><div className="text-[11.5px] text-ink-500">{a.sector}</div></div> },
+            { key: "aw", header: t("Awards"), align: "right", sort: (a) => a.awards, render: (a) => a.awards },
+            { key: "v", header: t("Total value"), align: "right", sort: (a) => a.value, render: (a) => f.mad(a.value, { unit: false }) },
+            { key: "avg", header: t("Avg. award"), align: "right", hideBelow: "lg", sort: (a) => a.avg, render: (a) => f.mad(a.avg, { unit: false }) },
+            { key: "b", header: t("Buyers"), align: "right", sort: (a) => a.buyers, render: (a) => a.buyers },
+            { key: "r", header: t("Repeat buyers"), align: "right", sort: (a) => a.repeat, render: (a) => a.repeat },
+            { key: "g", header: t("Regions"), align: "right", hideBelow: "md", sort: (a) => a.regions, render: (a) => a.regions },
+            { key: "p", header: t("Active period"), hideBelow: "xl", sort: (a) => a.last, render: (a) => <span className="tnum text-[11.5px] text-ink-500">{f.shortDate(a.first)} → {f.shortDate(a.last)}</span> },
           ]} />
       </Section>
     </div>

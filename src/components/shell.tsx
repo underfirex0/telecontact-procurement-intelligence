@@ -1,4 +1,6 @@
 "use client";
+import { t, tk, tv } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n/react";
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,31 +18,31 @@ import * as f from "@/lib/format";
 import { Crumb, Popover } from "./ui";
 
 const NAV: { group: string; items: { href: string; label: string; icon: typeof Gauge; n: string }[] }[] = [
-  { group: "Intelligence", items: [
-    { href: "/", label: "Overview", icon: Gauge, n: "01" },
-    { href: "/opportunities", label: "Opportunities", icon: Compass, n: "02" },
-    { href: "/buyers", label: "Buyers", icon: Landmark, n: "03" },
-    { href: "/competitors", label: "Competitors", icon: Building2, n: "04" },
-    { href: "/awardees", label: "Awardees", icon: Trophy, n: "05" },
-    { href: "/market", label: "Market Intelligence", icon: BarChart3, n: "06" },
-    { href: "/signals", label: "Future Signals", icon: Radar, n: "07" },
+  { group: tk("Intelligence"), items: [
+    { href: "/", label: tk("Overview"), icon: Gauge, n: "01" },
+    { href: "/opportunities", label: tk("Opportunities"), icon: Compass, n: "02" },
+    { href: "/buyers", label: tk("Buyers"), icon: Landmark, n: "03" },
+    { href: "/competitors", label: tk("Competitors"), icon: Building2, n: "04" },
+    { href: "/awardees", label: tk("Awardees"), icon: Trophy, n: "05" },
+    { href: "/market", label: tk("Market Intelligence"), icon: BarChart3, n: "06" },
+    { href: "/signals", label: tk("Future Signals"), icon: Radar, n: "07" },
   ] },
-  { group: "Network", items: [
-    { href: "/suppliers", label: "Suppliers & Partners", icon: Network, n: "08" },
-    { href: "/acquisition", label: "Provider Acquisition", icon: Handshake, n: "09" },
-    { href: "/talent", label: "Talent & Local Experts", icon: Users, n: "10" },
+  { group: tk("Network"), items: [
+    { href: "/suppliers", label: tk("Suppliers & Partners"), icon: Network, n: "08" },
+    { href: "/acquisition", label: tk("Provider Acquisition"), icon: Handshake, n: "09" },
+    { href: "/talent", label: tk("Talent & Local Experts"), icon: Users, n: "10" },
   ] },
-  { group: "Execution", items: [
-    { href: "/bids", label: "Bid Workspace", icon: ClipboardCheck, n: "11" },
-    { href: "/reports", label: "Reports", icon: FileText, n: "12" },
-    { href: "/settings", label: "Settings", icon: Settings, n: "13" },
+  { group: tk("Execution"), items: [
+    { href: "/bids", label: tk("Bid Workspace"), icon: ClipboardCheck, n: "11" },
+    { href: "/reports", label: tk("Reports"), icon: FileText, n: "12" },
+    { href: "/settings", label: tk("Settings"), icon: Settings, n: "13" },
   ] },
 ];
 
 const SECTION_LABEL: Record<string, string> = {
-  "": "Overview", opportunities: "Opportunities", buyers: "Buyers", competitors: "Competitors", awardees: "Awardees", market: "Market Intelligence",
-  signals: "Future Signals", suppliers: "Suppliers & Partners", acquisition: "Provider Acquisition", talent: "Talent & Local Experts", bids: "Bid Workspace",
-  reports: "Reports", settings: "Settings", quality: "Data Quality", compare: "Compare",
+  "": tk("Overview"), opportunities: tk("Opportunities"), buyers: tk("Buyers"), competitors: tk("Competitors"), awardees: tk("Awardees"), market: tk("Market Intelligence"),
+  signals: tk("Future Signals"), suppliers: tk("Suppliers & Partners"), acquisition: tk("Provider Acquisition"), talent: tk("Talent & Local Experts"), bids: tk("Bid Workspace"),
+  reports: tk("Reports"), settings: tk("Settings"), quality: tk("Data Quality"), compare: tk("Compare"),
 };
 
 export function BrandMark({ className }: { className?: string }) {
@@ -65,11 +67,11 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <div className="mt-1 text-[9.5px] font-semibold tracking-[0.2em] text-accent">INTELLIGENCE</div>
         </div>
       </Link>
-      <div className="mx-4 mb-3 border-y border-line py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">Procurement Intelligence</div>
+      <div className="mx-4 mb-3 border-y border-line py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-ink-500">{t("Procurement Intelligence")}</div>
       <nav className="flex-1 overflow-y-auto px-2 pb-4">
         {NAV.map((g) => (
           <div key={g.group} className="mb-3">
-            <div className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">{g.group}</div>
+            <div className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">{t(g.group)}</div>
             {g.items.map((it) => {
               const on = active(it.href);
               const Icon = it.icon;
@@ -78,7 +80,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   className={clsx("focus-ring group relative flex items-center gap-2.5 rounded-[5px] px-2 py-[6px] text-[13px] transition-colors", on ? "bg-white font-medium text-ink-900 shadow-hair" : "text-ink-600 hover:bg-white/70 hover:text-ink-900")}>
                   {on && <span className="absolute -left-2 top-1.5 h-[18px] w-[2px] rounded-r bg-accent" />}
                   <Icon size={15} strokeWidth={on ? 2.1 : 1.7} className={on ? "text-accent" : "text-ink-400 group-hover:text-ink-600"} />
-                  <span className="flex-1 truncate">{it.label}</span>
+                  <span className="flex-1 leading-tight">{t(it.label)}</span>
                   <span className="font-mono text-[9.5px] text-ink-300">{it.n}</span>
                 </Link>
               );
@@ -86,17 +88,17 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </div>
         ))}
         <div className="mb-3">
-          <div className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">Governance</div>
+          <div className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">{t("Governance")}</div>
           <Link href="/quality" onClick={onNavigate} className={clsx("focus-ring relative flex items-center gap-2.5 rounded-[5px] px-2 py-[6px] text-[13px]", active("/quality") ? "bg-white font-medium text-ink-900 shadow-hair" : "text-ink-600 hover:bg-white/70")}>
             {active("/quality") && <span className="absolute -left-2 top-1.5 h-[18px] w-[2px] rounded-r bg-accent" />}
             <ShieldCheck size={15} strokeWidth={1.7} className={active("/quality") ? "text-accent" : "text-ink-400"} />
-            Data Quality
+            {t("Data Quality")}
           </Link>
         </div>
       </nav>
       <div className="border-t border-line px-4 py-3 text-[10.5px] leading-snug text-ink-500">
-        <div className="font-semibold text-signal-warn">SYNTHETIC DEMO DATA</div>
-        Prototype for demonstration. Not an officially launched or approved Telecontact product.
+        <div className="font-semibold text-signal-warn">{t("SYNTHETIC DEMO DATA")}</div>
+        {t("Prototype for demonstration. Not an officially launched or approved Telecontact product.")}
       </div>
     </div>
   );
@@ -131,10 +133,10 @@ function GlobalSearch() {
         if (matchesSearch(r, q, fields)) out.push(map(r));
       }
     };
-    take(c.clean, [(o) => o.reference, (o) => o.title, (o) => o.city, (o) => (o.buyerId ? c.buyer.get(o.buyerId)?.acronym : "")], (o) => ({ kind: "Opportunity", id: o.id, label: o.title, sub: `${o.reference} · ${o.status}`, href: `/opportunities/${o.id}` }), 6);
+    take(c.clean, [(o) => o.reference, (o) => o.title, (o) => o.city, (o) => (o.buyerId ? c.buyer.get(o.buyerId)?.acronym : "")], (o) => ({ kind: "Opportunity", id: o.id, label: o.title, sub: `${o.reference} · ${tv(o.status)}`, href: `/opportunities/${o.id}` }), 6);
     take(c.ds.buyers, [(b) => b.name, (b) => b.acronym, (b) => b.city], (b) => ({ kind: "Buyer", id: b.id, label: b.name, sub: `${b.acronym} · ${b.city}`, href: `/buyers/${b.id}` }), 4);
     take(c.ds.companies, [(x) => x.name, (x) => x.city, (x) => x.ice], (x) => ({ kind: "Company", id: x.id, label: x.name, sub: `${x.city} · ${c.sector.get(x.sectorIds[0])?.name}`, href: `/competitors/${x.id}` }), 4);
-    take(suppliers, [(s) => s.name, (s) => s.country, (s) => s.city, (s) => s.services.join(" ")], (s) => ({ kind: "Supplier", id: s.id, label: s.name, sub: `${s.country} · ${s.status}`, href: `/suppliers/${s.id}` }), 4);
+    take(suppliers, [(s) => s.name, (s) => s.country, (s) => s.city, (s) => s.services.join(" ")], (s) => ({ kind: "Supplier", id: s.id, label: s.name, sub: `${tv(s.country)} · ${tv(s.status)}`, href: `/suppliers/${s.id}` }), 4);
     return out;
   }, [q, suppliers]);
   const go = (h: Hit) => { router.push(h.href); setOpen(false); setQ(""); ref.current?.blur(); };
@@ -156,18 +158,18 @@ function GlobalSearch() {
           }
           if (e.key === "Escape") { setOpen(false); ref.current?.blur(); }
         }}
-        placeholder="Search tenders, buyers, companies, suppliers…"
+        placeholder={t("Search tenders, buyers, companies, suppliers…")}
         className="field !h-8 !rounded-[6px] !border-line !bg-canvas pl-8 pr-12 focus:!bg-white"
-        aria-label="Global search"
+        aria-label={t("Global search")}
       />
       <kbd className="pointer-events-none absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-line bg-white px-1 font-mono text-[10px] text-ink-400 sm:block">Ctrl K</kbd>
       {open && q.trim().length >= 2 && (
         <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[420px] overflow-y-auto rounded-md bg-white py-1 shadow-pop">
-          {hits.length === 0 && <div className="px-3 py-3 text-sm text-ink-500">No matches. Press Enter to search all opportunities.</div>}
+          {hits.length === 0 && <div className="px-3 py-3 text-sm text-ink-500">{t("No matches. Press Enter to search all opportunities.")}</div>}
           {hits.map((h, i) => (
             <button key={h.kind + h.id} onMouseDown={(e) => { e.preventDefault(); go(h); }} onMouseEnter={() => setSel(i)}
               className={clsx("flex w-full items-start gap-3 px-3 py-1.5 text-left", i === sel && "bg-accent-50")}>
-              <span className="mt-[2px] w-[70px] shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-400">{h.kind}</span>
+              <span className="mt-[2px] w-[70px] shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-400">{tv(h.kind)}</span>
               <span className="min-w-0">
                 <span className="block truncate text-[13px] text-ink-900">{h.label}</span>
                 <span className="block truncate text-[11px] text-ink-500">{h.sub}</span>
@@ -192,14 +194,14 @@ function useNotices(): Notice[] {
     const c = getContext();
     const ref = c.ref;
     const out: Notice[] = [];
-    for (const o of c.clean.filter((x) => x.status === "Closing soon")) out.push({ id: `dl-${o.id}`, kind: "deadline", title: "Deadline approaching", body: `${o.reference} closes ${f.date(o.deadline)}`, href: `/opportunities/${o.id}`, when: o.deadline! });
+    for (const o of c.clean.filter((x) => x.status === "Closing soon")) out.push({ id: `dl-${o.id}`, kind: "deadline", title: t("Deadline approaching"), body: t("{ref} closes {date}", { ref: o.reference, date: f.date(o.deadline) }), href: `/opportunities/${o.id}`, when: o.deadline! });
     for (const id of Object.keys(state.saved)) {
       const o = c.opp.get(id);
-      if (o?.deadline && o.deadline >= ref && o.deadline <= addDays(ref, 21) && o.status !== "Closing soon") out.push({ id: `dls-${id}`, kind: "deadline", title: "Saved tender deadline", body: `${o.reference} closes ${f.date(o.deadline)}`, href: `/opportunities/${id}`, when: o.deadline });
+      if (o?.deadline && o.deadline >= ref && o.deadline <= addDays(ref, 21) && o.status !== "Closing soon") out.push({ id: `dls-${id}`, kind: "deadline", title: t("Saved tender deadline"), body: t("{ref} closes {date}", { ref: o.reference, date: f.date(o.deadline) }), href: `/opportunities/${id}`, when: o.deadline });
     }
-    for (const s of suppliers.filter((x) => x.followUpDate && x.followUpDate <= addDays(ref, 3) && !["Rejected", "Inactive"].includes(x.status))) out.push({ id: `fu-${s.id}-${s.followUpDate}`, kind: "followup", title: s.followUpDate! < ref ? "Follow-up overdue" : "Follow-up due", body: `${s.name} — ${f.date(s.followUpDate)}`, href: `/suppliers/${s.id}`, when: s.followUpDate! });
-    for (const m of meetings.filter((x) => x.status === "Scheduled" && x.date >= ref && x.date <= addDays(ref, 7))) out.push({ id: `mt-${m.id}`, kind: "meeting", title: "Meeting this week", body: `${m.subject} · ${f.date(m.date)} ${m.time}`, href: `/suppliers/${m.supplierId}`, when: m.date });
-    for (const s of futureSignals(c).filter((x) => x.state === "Within window" && x.level !== "Low").slice(0, 4)) out.push({ id: `sg-${s.id}`, kind: "signal", title: "Signal window open", body: `${s.buyerName.split(" — ")[0]} · ${s.sectorName}`, href: `/signals?focus=${s.id}`, when: s.windowStart });
+    for (const s of suppliers.filter((x) => x.followUpDate && x.followUpDate <= addDays(ref, 3) && !["Rejected", "Inactive"].includes(x.status))) out.push({ id: `fu-${s.id}-${s.followUpDate}`, kind: "followup", title: s.followUpDate! < ref ? t("Follow-up overdue") : t("Follow-up due"), body: `${s.name} — ${f.date(s.followUpDate)}`, href: `/suppliers/${s.id}`, when: s.followUpDate! });
+    for (const m of meetings.filter((x) => x.status === "Scheduled" && x.date >= ref && x.date <= addDays(ref, 7))) out.push({ id: `mt-${m.id}`, kind: "meeting", title: t("Meeting this week"), body: `${tv(m.subject)} · ${f.date(m.date)} ${m.time}`, href: `/suppliers/${m.supplierId}`, when: m.date });
+    for (const s of futureSignals(c).filter((x) => x.state === "Within window" && x.level !== "Low").slice(0, 4)) out.push({ id: `sg-${s.id}`, kind: "signal", title: t("Signal window open"), body: `${s.buyerName.split(" — ")[0]} · ${tv(s.sectorName)}`, href: `/signals?focus=${s.id}`, when: s.windowStart });
     return out.sort((a, b) => a.when.localeCompare(b.when));
   }, [suppliers, meetings, state.saved]);
 }
@@ -210,7 +212,7 @@ function Notifications() {
   const unread = hydrated ? notices.filter((n) => !state.readNotifications.includes(n.id)) : [];
   return (
     <Popover width="w-[360px]" trigger={() => (
-      <button className="btn-ghost relative !px-2" aria-label="Notifications">
+      <button className="btn-ghost relative !px-2" aria-label={t("Notifications")}>
         <Bell size={16} />
         {unread.length > 0 && <span className="tnum absolute right-0.5 top-0.5 min-w-[15px] rounded-full bg-signal-bad px-1 text-center text-[9.5px] font-semibold leading-[15px] text-white">{unread.length}</span>}
       </button>
@@ -218,11 +220,11 @@ function Notifications() {
       {(close) => (
         <div>
           <div className="flex items-center justify-between border-b border-line px-3 py-2">
-            <div className="text-[13px] font-semibold">Notifications</div>
-            <button className="text-xs text-accent-700 hover:underline" onClick={() => dispatch({ type: "markRead", ids: notices.map((n) => n.id) })}>Mark all read</button>
+            <div className="text-[13px] font-semibold">{t("Notifications")}</div>
+            <button className="text-xs text-accent-700 hover:underline" onClick={() => dispatch({ type: "markRead", ids: notices.map((n) => n.id) })}>{t("Mark all read")}</button>
           </div>
           <div className="max-h-[380px] overflow-y-auto">
-            {notices.length === 0 && <div className="px-3 py-6 text-center text-sm text-ink-500">Nothing requires attention.</div>}
+            {notices.length === 0 && <div className="px-3 py-6 text-center text-sm text-ink-500">{t("Nothing requires attention.")}</div>}
             {notices.map((n) => (
               <Link key={n.id} href={n.href} onClick={() => { dispatch({ type: "markRead", ids: [n.id] }); close(); }} className="flex gap-2.5 border-b border-line-soft px-3 py-2 hover:bg-canvas">
                 <span className={clsx("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", state.readNotifications.includes(n.id) ? "bg-transparent" : "bg-accent")} />
@@ -233,10 +235,24 @@ function Notifications() {
               </Link>
             ))}
           </div>
-          <div className="px-3 py-2 text-[10.5px] text-ink-500">Generated from synthetic records relative to {f.date(getContext().ref)}.</div>
+          <div className="px-3 py-2 text-[10.5px] text-ink-500">{t("Generated from synthetic records relative to {date}.", { date: f.date(getContext().ref) })}</div>
         </div>
       )}
     </Popover>
+  );
+}
+
+function LanguageSwitch() {
+  const { lang, setLang } = useLocale();
+  return (
+    <div role="group" aria-label={t("Language")} className="flex items-center rounded-[6px] border border-line p-0.5 text-[11.5px] font-semibold">
+      {(["en", "fr"] as const).map((l) => (
+        <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l} title={l === "en" ? "English" : "Français"}
+          className={clsx("focus-ring rounded-[4px] px-2 py-1 uppercase tracking-[0.06em] transition-colors", lang === l ? "bg-ink-900 text-white" : "text-ink-500 hover:text-ink-900")}>
+          {l}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -247,8 +263,8 @@ function Profile() {
       <button className="focus-ring flex items-center gap-2 rounded-[6px] py-1 pl-1 pr-2 hover:bg-canvas">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink-800 text-[11px] font-semibold text-white">DU</span>
         <span className="hidden text-left leading-tight lg:block">
-          <span className="block text-[12.5px] font-medium text-ink-900">Demo User</span>
-          <span className="block text-[10.5px] text-ink-500">Analyst · Demo workspace</span>
+          <span className="block text-[12.5px] font-medium text-ink-900">{t("Demo User")}</span>
+          <span className="block text-[10.5px] text-ink-500">{t("Analyst · Demo workspace")}</span>
         </span>
       </button>
     )}>
@@ -256,11 +272,11 @@ function Profile() {
         <div className="py-1 text-[13px]">
           <div className="border-b border-line px-3 py-2">
             <div className="font-medium">{CURRENT_USER}</div>
-            <div className="text-xs text-ink-500">Fictional profile · no authentication in prototype</div>
+            <div className="text-xs text-ink-500">{t("Fictional profile · no authentication in prototype")}</div>
           </div>
-          <Link href="/settings" onClick={close} className="flex items-center gap-2 px-3 py-2 hover:bg-canvas"><Settings size={14} /> Workspace settings</Link>
-          <button onClick={() => { if (confirm("Reset all demo workspace changes (saved tenders, assessments, suppliers, meetings)?")) { dispatch({ type: "reset" }); toast("Demo workspace reset"); } close(); }} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-canvas"><RotateCcw size={14} /> Reset demo workspace</button>
-          <div className="flex items-center gap-2 px-3 py-2 text-ink-400"><LogOut size={14} /> Sign out (disabled in demo)</div>
+          <Link href="/settings" onClick={close} className="flex items-center gap-2 px-3 py-2 hover:bg-canvas"><Settings size={14} /> {t("Workspace settings")}</Link>
+          <button onClick={() => { if (confirm(t("Reset all demo workspace changes (saved tenders, assessments, suppliers, meetings)?"))) { dispatch({ type: "reset" }); toast(t("Demo workspace reset")); } close(); }} className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-canvas"><RotateCcw size={14} /> {t("Reset demo workspace")}</button>
+          <div className="flex items-center gap-2 px-3 py-2 text-ink-400"><LogOut size={14} /> {t("Sign out (disabled in demo)")}</div>
         </div>
       )}
     </Popover>
@@ -271,11 +287,11 @@ function useCrumbs() {
   const path = usePathname();
   const c = getContext();
   const parts = path.split("/").filter(Boolean);
-  const items: { label: string; href?: string }[] = [{ label: "Telecontact Intelligence", href: "/" }];
-  if (!parts.length) items.push({ label: "Overview" });
+  const items: { label: string; href?: string }[] = [{ label: t("Telecontact Intelligence"), href: "/" }];
+  if (!parts.length) items.push({ label: t("Overview") });
   parts.forEach((p, i) => {
     const href = "/" + parts.slice(0, i + 1).join("/");
-    let label = SECTION_LABEL[p] ?? decodeURIComponent(p);
+    let label = SECTION_LABEL[p] ? t(SECTION_LABEL[p]) : decodeURIComponent(p);
     if (i === 1) {
       if (parts[0] === "opportunities" || parts[0] === "bids") label = c.opp.get(p)?.reference ?? p;
       if (parts[0] === "buyers") label = c.buyer.get(p)?.acronym ?? label;
@@ -290,8 +306,8 @@ function Toasts() {
   const { toasts } = useWorkspace();
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex flex-col gap-2">
-      {toasts.map((t) => (
-        <div key={t.id} className="animate-fadein rounded-[6px] bg-ink-900 px-3.5 py-2 text-[13px] text-white shadow-pop">{t.msg}</div>
+      {toasts.map((tx) => (
+        <div key={tx.id} className="animate-fadein rounded-[6px] bg-ink-900 px-3.5 py-2 text-[13px] text-white shadow-pop">{tx.msg}</div>
       ))}
     </div>
   );
@@ -310,7 +326,7 @@ export function Shell({ children }: { children: ReactNode }) {
       {mobile && (
         <div className="fixed inset-0 z-50 bg-ink-900/30 lg:hidden" onClick={() => setMobile(false)}>
           <aside className="h-full w-[260px] bg-[#F4F6F9]" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-end p-2"><button className="btn-ghost" onClick={() => setMobile(false)} aria-label="Close menu"><X size={16} /></button></div>
+            <div className="flex justify-end p-2"><button className="btn-ghost" onClick={() => setMobile(false)} aria-label={t("Close menu")}><X size={16} /></button></div>
             <Sidebar onNavigate={() => setMobile(false)} />
           </aside>
         </div>
@@ -318,16 +334,17 @@ export function Shell({ children }: { children: ReactNode }) {
       <div className="lg:pl-[236px]">
         <div className="no-print sticky top-0 z-20 border-b border-line bg-white/95 backdrop-blur">
           <div className="flex h-[52px] items-center gap-3 px-4 md:px-8">
-            <button className="btn-ghost !px-1.5 lg:hidden" onClick={() => setMobile(true)} aria-label="Open menu"><Menu size={18} /></button>
+            <button className="btn-ghost !px-1.5 lg:hidden" onClick={() => setMobile(true)} aria-label={t("Open menu")}><Menu size={18} /></button>
             <div className="hidden min-w-0 flex-1 md:block"><Crumb items={crumbs} /></div>
             <div className="flex flex-1 justify-end md:flex-none"><GlobalSearch /></div>
+            <LanguageSwitch />
             <Notifications />
             <Profile />
           </div>
           <div className="flex items-center gap-2 border-t border-[#F0DDB8] bg-[#FDF9F0] px-4 py-[3px] text-[10.5px] text-[#7A4D05] md:px-8">
             <Activity size={11} />
-            <span className="font-semibold tracking-[0.08em]">SYNTHETIC DEMO DATA</span>
-            <span className="hidden truncate sm:inline">— fictional Moroccan procurement records generated for demonstration. Reference date {f.date(getContext().ref)}.</span>
+            <span className="font-semibold tracking-[0.08em]">{t("SYNTHETIC DEMO DATA")}</span>
+            <span className="hidden truncate sm:inline">{t("— fictional Moroccan procurement records generated for demonstration. Reference date {date}.", { date: f.date(getContext().ref) })}</span>
           </div>
         </div>
         <main className="min-w-0">{children}</main>

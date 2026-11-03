@@ -3,6 +3,8 @@
 ## Delivered in this prototype
 Synthetic dataset generator; analytical engine (quality, market, buyers, competitors, concentration, recurrence/signals, dossier); 13 modules + data quality; report engine with 8 report types and CSV/Excel/JSON/print-PDF exports; supplier CRM, acquisition workflow, talent module; bid workspace; 27 unit tests; 14 end-to-end journeys.
 
+Also delivered: full English / French interface with locale-aware formatting and translated analytics, reports and exports.
+
 ## Next (prototype hardening)
 - Persist the workspace in SQLite / Postgres behind API routes (multi-user).
 - Saved searches and alert rules on opportunities and signals.

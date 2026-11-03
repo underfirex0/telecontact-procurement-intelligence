@@ -9,6 +9,9 @@ An **intelligence workstation**, modelled on research documents rather than admi
 - **Provenance tags**: Fact (ink), Metric (blue), Interpretation (violet), Recommendation (green), Assumption (amber), Unknown (red) — left rule + tag on every finding.
 - **Synthetic labelling**: persistent amber strip under the top bar, dashed "SYNTHETIC" tag on profiles, disclaimer in every report and export.
 
+## Languages
+English and French, switched from the **EN | FR** control in the top bar and remembered per browser. The whole tree re-renders on switch so analytical sentences, charts, tables, reports and exports are rebuilt in the selected language. French typography: thin spaces before `%`, comma decimals, `M MAD`, abbreviated French months, `T1–T4` quarters, « guillemets » in quoted objects.
+
 ## Layout
 Persistent left sidebar (236px, numbered modules 01–13 in three groups + Governance); sticky top bar with breadcrumbs, global search (Ctrl K or /, keyboard navigation, grouped hits), computed notifications, profile menu. On <1024px the sidebar becomes a drawer; tables hide secondary columns by breakpoint; no horizontal page overflow at 390px.
 

@@ -4,6 +4,8 @@
  * engine with a dedicated print stylesheet (see globals.css).
  * Every export carries the SYNTHETIC DEMO DATA label.
  */
+import { t } from "../i18n";
+
 export type Row = Record<string, string | number | null | undefined>;
 
 const DISCLAIMER = "SYNTHETIC DEMO DATA — fictional records generated for the Telecontact Intelligence prototype. Not real procurement information.";
@@ -18,7 +20,7 @@ export function toCSV(rows: Row[], opts: { disclaimer?: boolean } = {}): string 
   const { disclaimer = true } = opts;
   const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
   const lines = [cols.map(csvCell).join(","), ...rows.map((r) => cols.map((c) => csvCell(r[c])).join(","))];
-  return (disclaimer ? `# ${DISCLAIMER}\n` : "") + lines.join("\n");
+  return (disclaimer ? `# ${t(DISCLAIMER)}\n` : "") + lines.join("\n");
 }
 
 const xmlEsc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -32,7 +34,7 @@ export function toExcelXML(sheets: { name: string; rows: Row[] }[]): string {
       return `<Cell${style ? ` ss:StyleID="${style}"` : ""}><Data ss:Type="${isNum ? "Number" : "String"}">${xmlEsc(String(v))}</Data></Cell>`;
     };
     return `<Worksheet ss:Name="${xmlEsc(name.slice(0, 31))}"><Table>
-<Row>${cell(DISCLAIMER, "warn")}</Row>
+<Row>${cell(t(DISCLAIMER), "warn")}</Row>
 <Row>${cols.map((c) => cell(c, "head")).join("")}</Row>
 ${rows.map((r) => `<Row>${cols.map((c) => cell(r[c])).join("")}</Row>`).join("\n")}
 </Table></Worksheet>`;

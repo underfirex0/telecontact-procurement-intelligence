@@ -40,6 +40,9 @@ Reducer actions (`toggleSave`, `saveAssessment`, `createSupplier`, `updateSuppli
 ## Rendering
 Pages are client components (state-rich filtering). Static routes are prerendered; dynamic `[id]` routes render on demand. Floating values used in inline styles are rounded to avoid hydration mismatches.
 
+## Internationalisation
+`src/lib/i18n` holds the language state, `t()` (interface and analytical templates, English source strings as keys), `tv()` (data values and generated synthetic data text, by exact match then pattern) and the French dictionary `fr.ts`. `LocaleProvider` (in the layout) restores the stored choice after mount and keys the tree on the language so every computation re-runs. The data service builds one analytical context per language (localised sector names). Analytics and report builders call `t()` directly, so a future API could render server-side in either language.
+
 ## Real-data integration seam
 1. Replace `getDataset()` with a repository reading from a database (same `Dataset` shape, or per-entity repositories).
 2. Move analytics to the server (they are pure and framework-agnostic) and expose them via route handlers.

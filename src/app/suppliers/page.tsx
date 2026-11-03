@@ -1,4 +1,5 @@
 "use client";
+import { t, tv, tvl } from "@/lib/i18n";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -47,45 +48,45 @@ export default function SuppliersPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Module 08 · Suppliers & partners network" title="Supplier and partner network"
-        description="Execution partners and service providers across countries and sectors, with relationship stage, ownership and follow-up discipline."
-        meta={<><span>{suppliers.length} suppliers</span><span>{countries.length} countries</span><span>{suppliers.filter((s) => s.status === "Active partner").length} active partners</span><span className={clsx(dueSoon.length && "font-medium text-signal-warn")}>{dueSoon.length} follow-ups due ≤ 7 days</span></>}
-        actions={<><button className="btn" onClick={exportCsv}><Download size={14} /> Export</button><button className="btn-primary" onClick={() => setCreating(true)}><Plus size={14} /> New supplier</button></>}>
+      <PageHeader eyebrow={t("Module 08 · Suppliers & partners network")} title={t("Supplier and partner network")}
+        description={t("Execution partners and service providers across countries and sectors, with relationship stage, ownership and follow-up discipline.")}
+        meta={<><span>{suppliers.length} {t("suppliers")}</span><span>{countries.length} {t("countries")}</span><span>{suppliers.filter((s) => s.status === "Active partner").length} {t("active partners")}</span><span className={clsx(dueSoon.length && "font-medium text-signal-warn")}>{dueSoon.length} {t("follow-ups due ≤ 7 days")}</span></>}
+        actions={<><button className="btn" onClick={exportCsv}><Download size={14} /> {t("Export")}</button><button className="btn-primary" onClick={() => setCreating(true)}><Plus size={14} /> {t("New supplier")}</button></>}>
         <div className="flex flex-wrap gap-1">
-          <button onClick={() => setStatus("")} className={clsx("rounded-[4px] border px-2 py-1 text-[12px]", !status ? "border-ink-900 bg-ink-900 text-white" : "border-line-strong text-ink-600")}>All · {rows.length}</button>
+          <button onClick={() => setStatus("")} className={clsx("rounded-[4px] border px-2 py-1 text-[12px]", !status ? "border-ink-900 bg-ink-900 text-white" : "border-line-strong text-ink-600")}>{t("All · {n}", { n: rows.length })}</button>
           {stageCounts.map(({ st, n }) => (
-            <button key={st} onClick={() => setStatus(status === st ? "" : st)} className={clsx("rounded-[4px] border px-2 py-1 text-[12px]", status === st ? "border-ink-900 bg-ink-900 text-white" : "border-line-strong text-ink-600 hover:text-ink-900")}>{st} <span className="tnum opacity-70">{n}</span></button>
+            <button key={st} onClick={() => setStatus(status === st ? "" : st)} className={clsx("rounded-[4px] border px-2 py-1 text-[12px]", status === st ? "border-ink-900 bg-ink-900 text-white" : "border-line-strong text-ink-600 hover:text-ink-900")}>{tv(st)} <span className="tnum opacity-70">{n}</span></button>
           ))}
         </div>
       </PageHeader>
       <FilterBar>
-        <label className="block w-64"><span className="label !mb-0.5 !text-[11px]">Search name, service, specialisation</span>
+        <label className="block w-64"><span className="label !mb-0.5 !text-[11px]">{t("Search name, service, specialisation")}</span>
           <div className="relative"><Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400" /><input className="field !h-[30px] pl-8" value={q} onChange={(e) => setQ(e.target.value)} /></div></label>
-        <SelectFilter label="Country" value={country} onChange={(v) => { setCountry(v); setCity(""); }} width="w-40" options={[{ value: "", label: "All countries" }, ...countries.map((x) => ({ value: x, label: x }))]} />
-        <SelectFilter label="Region" value={region} onChange={setRegion} width="w-36" options={[{ value: "", label: "All regions" }, ...[...new Set(suppliers.map((s) => s.region))].sort().map((x) => ({ value: x, label: x }))]} />
-        <SelectFilter label="City" value={city} onChange={setCity} width="w-36" options={[{ value: "", label: "All cities" }, ...cities.map((x) => ({ value: x, label: x }))]} />
-        <SelectFilter label="Sector" value={sector} onChange={setSector} options={[{ value: "", label: "All sectors" }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name }))]} />
-        <SelectFilter label="Domain" value={domain} onChange={setDomain} width="w-40" options={[{ value: "", label: "All domains" }, ...[...new Set(c.ds.sectors.map((s) => s.domain))].map((x) => ({ value: x, label: x }))]} />
+        <SelectFilter label={t("Country")} value={country} onChange={(v) => { setCountry(v); setCity(""); }} width="w-40" options={[{ value: "", label: t("All countries") }, ...countries.map((x) => ({ value: x, label: tv(x) }))]} />
+        <SelectFilter label={t("Region")} value={region} onChange={setRegion} width="w-36" options={[{ value: "", label: t("All regions") }, ...[...new Set(suppliers.map((s) => s.region))].sort().map((x) => ({ value: x, label: tv(x) }))]} />
+        <SelectFilter label={t("City")} value={city} onChange={setCity} width="w-36" options={[{ value: "", label: t("All cities") }, ...cities.map((x) => ({ value: x, label: tv(x) }))]} />
+        <SelectFilter label={t("Sector")} value={sector} onChange={setSector} options={[{ value: "", label: t("All sectors") }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name }))]} />
+        <SelectFilter label={t("Domain")} value={domain} onChange={setDomain} width="w-40" options={[{ value: "", label: t("All domains") }, ...[...new Set(c.ds.sectors.map((s) => s.domain))].map((x) => ({ value: x, label: tv(x) }))]} />
       </FilterBar>
 
-      <Section title="Network footprint" kicker="Where the selected suppliers are based. Use it to spot gaps before a tender requires local capacity." index="01">
+      <Section title={t("Network footprint")} kicker={t("Where the selected suppliers are based. Use it to spot gaps before a tender requires local capacity.")} index="01">
         <div className="grid gap-8 lg:grid-cols-2">
-          <div><SubHead>Suppliers by country</SubHead><BarList rows={byCountry.map(([k, n]) => ({ key: k, label: k, value: n, display: n }))} /></div>
-          <div><SubHead>Sector coverage (primary sector)</SubHead><BarList rows={c.ds.sectors.map((s) => ({ key: s.id, label: s.name, value: rows.filter((x) => x.sectorIds[0] === s.id).length, sub: `${rows.filter((x) => x.sectorIds[0] === s.id && x.status === "Active partner").length} active`, display: rows.filter((x) => x.sectorIds[0] === s.id).length })).sort((a, b) => b.value - a.value)} /></div>
+          <div><SubHead>{t("Suppliers by country")}</SubHead><BarList rows={byCountry.map(([k, n]) => ({ key: k, label: tv(k), value: n, display: n }))} /></div>
+          <div><SubHead>{t("Sector coverage (primary sector)")}</SubHead><BarList rows={c.ds.sectors.map((s) => ({ key: s.id, label: s.name, value: rows.filter((x) => x.sectorIds[0] === s.id).length, sub: t("{v0} active", { v0: rows.filter((x) => x.sectorIds[0] === s.id && x.status === "Active partner").length }), display: rows.filter((x) => x.sectorIds[0] === s.id).length })).sort((a, b) => b.value - a.value)} /></div>
         </div>
       </Section>
       <div className="px-5 py-6 md:px-8">
         <DataTable rows={rows} rowKey={(s) => s.id} rowHref={(s) => `/suppliers/${s.id}`} pageSize={20} initialSort={{ key: "n", dir: "asc" }}
           columns={[
-            { key: "n", header: "Supplier", sort: (s) => s.name, width: "28%", render: (s) => <div><Link href={`/suppliers/${s.id}`} className="font-medium hover:text-accent-700">{s.name}</Link><div className="text-[11.5px] text-ink-500">{s.specialisation}</div></div> },
-            { key: "loc", header: "Location", sort: (s) => s.country, render: (s) => <div className="text-[12.5px]">{s.city}<div className="text-[11.5px] text-ink-500">{s.country}</div></div> },
-            { key: "sec", header: "Sectors", hideBelow: "lg", render: (s) => <span className="text-[12px]">{s.sectorIds.map((x) => c.sector.get(x)?.name).join(", ")}</span> },
-            { key: "cov", header: "Coverage", hideBelow: "xl", render: (s) => <span className="text-[11.5px] text-ink-500">{s.coverage.join(", ")}</span> },
-            { key: "st", header: "Stage", sort: (s) => RELATIONSHIP_STAGES.indexOf(s.status), render: (s) => <StageBadge stage={s.status} /> },
-            { key: "ct", header: "Main contact", hideBelow: "lg", render: (s) => { const ct = contacts.find((x) => x.id === s.contactIds[0]); return ct ? <span className="text-[12px]">{ct.name}<div className="text-[11px] text-ink-500">{ct.role}</div></span> : <span className="text-[12px] text-ink-400">None</span>; } },
-            { key: "own", header: "Owner", hideBelow: "xl", sort: (s) => s.relationshipOwner, render: (s) => <span className="text-[12px]">{s.relationshipOwner.replace(/^Demo /, "")}</span> },
-            { key: "li", header: "Last interaction", sort: (s) => s.lastInteraction, render: (s) => <span className="tnum text-[12px]">{f.shortDate(s.lastInteraction)}</span> },
-            { key: "fu", header: "Follow-up", sort: (s) => s.followUpDate, render: (s) => <span className={clsx("tnum text-[12px]", s.followUpDate && s.followUpDate < c.ref && !["Rejected", "Inactive"].includes(s.status) && "font-medium text-signal-bad")}>{f.shortDate(s.followUpDate)}</span> },
+            { key: "n", header: t("Supplier"), sort: (s) => s.name, width: "28%", render: (s) => <div><Link href={`/suppliers/${s.id}`} className="font-medium hover:text-accent-700">{s.name}</Link><div className="text-[11.5px] text-ink-500">{tv(s.specialisation)}</div></div> },
+            { key: "loc", header: t("Location"), sort: (s) => s.country, render: (s) => <div className="text-[12.5px]">{s.city}<div className="text-[11.5px] text-ink-500">{tv(s.country)}</div></div> },
+            { key: "sec", header: t("Sectors"), hideBelow: "lg", render: (s) => <span className="text-[12px]">{s.sectorIds.map((x) => c.sector.get(x)?.name).join(", ")}</span> },
+            { key: "cov", header: t("Coverage"), hideBelow: "xl", render: (s) => <span className="text-[11.5px] text-ink-500">{tvl(s.coverage, ", ")}</span> },
+            { key: "st", header: t("Stage"), sort: (s) => RELATIONSHIP_STAGES.indexOf(s.status), render: (s) => <StageBadge stage={s.status} /> },
+            { key: "ct", header: t("Main contact"), hideBelow: "lg", render: (s) => { const ct = contacts.find((x) => x.id === s.contactIds[0]); return ct ? <span className="text-[12px]">{ct.name}<div className="text-[11px] text-ink-500">{tv(ct.role)}</div></span> : <span className="text-[12px] text-ink-400">{t("None")}</span>; } },
+            { key: "own", header: t("Owner"), hideBelow: "xl", sort: (s) => s.relationshipOwner, render: (s) => <span className="text-[12px]">{tv(s.relationshipOwner)}</span> },
+            { key: "li", header: t("Last interaction"), sort: (s) => s.lastInteraction, render: (s) => <span className="tnum text-[12px]">{f.shortDate(s.lastInteraction)}</span> },
+            { key: "fu", header: t("Follow-up"), sort: (s) => s.followUpDate, render: (s) => <span className={clsx("tnum text-[12px]", s.followUpDate && s.followUpDate < c.ref && !["Rejected", "Inactive"].includes(s.status) && "font-medium text-signal-bad")}>{f.shortDate(s.followUpDate)}</span> },
           ]} />
       </div>
       {creating && <SupplierFormModal open onClose={() => setCreating(false)} onSaved={(id) => router.push(`/suppliers/${id}`)} />}

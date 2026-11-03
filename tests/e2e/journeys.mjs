@@ -157,5 +157,21 @@ await step("Data quality workspace", async () => {
   await see("Issue log");
 });
 
+await step("Switch the interface to French and back", async () => {
+  await go("/");
+  await page.getByRole("button", { name: "fr", exact: true }).click();
+  await see("Marchés publics marocains — synthèse du marché");
+  await see("Opportunités actives");
+  await page.reload({ waitUntil: "networkidle" });
+  await see("Marchés publics marocains — synthèse du marché"); // choice persists
+  await go("/opportunities/OPP-0284");
+  await see("Verdict stratégique");
+  await go("/reports?type=market");
+  await see("Synthèse exécutive");
+  await page.getByRole("button", { name: "en", exact: true }).click();
+  await see("Report generation");
+  await see("Executive summary");
+});
+
 await browser.close();
 console.log(`All ${n} journeys passed.`);

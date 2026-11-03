@@ -6,6 +6,7 @@
  *  - heatmaps      → one-hue sequential ramp (light → dark blue)
  * Every chart is rendered with a ChartNote (n, period) by its caller.
  */
+import { t } from "@/lib/i18n";
 import clsx from "clsx";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -47,8 +48,8 @@ export function TrendBars({ data, xKey, yKey, height = 220, format = (v: number)
           <CartesianGrid vertical={false} stroke="#EEF1F5" />
           <XAxis dataKey={xKey} {...axisProps} tickFormatter={xFormat} interval="preserveStartEnd" minTickGap={18} />
           <YAxis {...axisProps} allowDecimals={false} tickFormatter={(v) => format(v)} width={48} label={yLabel ? { value: yLabel, angle: -90, position: "insideLeft", offset: 22, style: { fontSize: 10, fill: "#8A9BB4" } } : undefined} />
-          <Tooltip cursor={{ fill: "rgba(37,99,168,0.06)" }} content={({ active, payload, label }) => (active && payload?.length ? <TooltipBox title={xFormat(String(label))} rows={[{ label: yLabel ?? "Value", value: format(Number(payload[0].value)), color: ACCENT }]} /> : null)} />
-          {avgLine && <ReferenceLine y={avg} stroke="#8A9BB4" strokeDasharray="3 3" label={{ value: `avg ${format(Math.round(avg * 10) / 10)}`, position: "insideTopRight", fontSize: 10, fill: "#64799A" }} />}
+          <Tooltip cursor={{ fill: "rgba(37,99,168,0.06)" }} content={({ active, payload, label }) => (active && payload?.length ? <TooltipBox title={xFormat(String(label))} rows={[{ label: yLabel ?? t("Value"), value: format(Number(payload[0].value)), color: ACCENT }]} /> : null)} />
+          {avgLine && <ReferenceLine y={avg} stroke="#8A9BB4" strokeDasharray="3 3" label={{ value: t("avg {v}", { v: format(Math.round(avg * 10) / 10) }), position: "insideTopRight", fontSize: 10, fill: "#64799A" }} />}
           <Bar dataKey={yKey} radius={[3, 3, 0, 0]} isAnimationActive={false}
             shape={(props: unknown) => {
               const p = props as { x: number; y: number; width: number; height: number; payload: Record<string, string> };
@@ -129,7 +130,7 @@ export function CumulativeArea({ data, xKey, yKey, height = 160, xFormat = (v: s
           <CartesianGrid vertical={false} stroke="#EEF1F5" />
           <XAxis dataKey={xKey} {...axisProps} tickFormatter={xFormat} minTickGap={18} />
           <YAxis {...axisProps} width={48} allowDecimals={false} />
-          <Tooltip content={({ active, payload, label }) => active && payload?.length ? <TooltipBox title={xFormat(String(label))} rows={[{ label: "Cumulative", value: String(payload[0].value), color: ACCENT }]} /> : null} />
+          <Tooltip content={({ active, payload, label }) => active && payload?.length ? <TooltipBox title={xFormat(String(label))} rows={[{ label: t("Cumulative"), value: String(payload[0].value), color: ACCENT }]} /> : null} />
           <Area dataKey={yKey} stroke={ACCENT} strokeWidth={2} fill="rgba(37,99,168,0.10)" isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>

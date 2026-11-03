@@ -4,6 +4,8 @@
  * Design language: research-document layout (label column + content column),
  * hairline rules instead of floating cards, tabular figures, restrained colour.
  */
+import { t, tk, tv } from "@/lib/i18n";
+import * as f from "@/lib/format";
 import clsx from "clsx";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -138,35 +140,35 @@ export const STATUS_TONE: Record<OpportunityStatus, Tone> = {
   Open: "blue", "Closing soon": "amber", "Under evaluation": "violet", Closed: "neutral", Awarded: "green", Unsuccessful: "red", Cancelled: "red",
 };
 export function StatusBadge({ status }: { status: OpportunityStatus }) {
-  return <Badge tone={STATUS_TONE[status]} dot>{status}</Badge>;
+  return <Badge tone={STATUS_TONE[status]} dot>{tv(status)}</Badge>;
 }
 
 export const STAGE_TONE: Record<RelationshipStage, Tone> = {
   Identified: "neutral", "Not contacted": "neutral", Contacted: "blue", Responded: "blue", "Meeting scheduled": "violet", Negotiation: "amber", "Active partner": "green", Inactive: "neutral", Rejected: "red",
 };
 export function StageBadge({ stage }: { stage: RelationshipStage }) {
-  return <Badge tone={STAGE_TONE[stage]} dot>{stage}</Badge>;
+  return <Badge tone={STAGE_TONE[stage]} dot>{tv(stage)}</Badge>;
 }
 
 export function LevelBadge({ level }: { level: "High" | "Medium" | "Low" }) {
-  return <Badge tone={level === "High" ? "green" : level === "Medium" ? "amber" : "neutral"}>{level} confidence</Badge>;
+  return <Badge tone={level === "High" ? "green" : level === "Medium" ? "amber" : "neutral"}>{t("{level} confidence", { level: tv(level) })}</Badge>;
 }
 
 export function RiskBadge({ level }: { level: "High" | "Medium" | "Low" }) {
-  return <Badge tone={level === "High" ? "red" : level === "Medium" ? "amber" : "neutral"}>{level}</Badge>;
+  return <Badge tone={level === "High" ? "red" : level === "Medium" ? "amber" : "neutral"}>{tv(level)}</Badge>;
 }
 
 export const KIND_META: Record<StatementKind, { label: string; tone: Tone; rule: string; desc: string }> = {
-  fact: { label: "Fact", tone: "ink", rule: "border-ink-900", desc: "Copied from a synthetic source record" },
-  metric: { label: "Metric", tone: "blue", rule: "border-accent", desc: "Calculated from records" },
-  interpretation: { label: "Interpretation", tone: "violet", rule: "border-[#7C5CC4]", desc: "Rule-based reading of metrics" },
-  recommendation: { label: "Recommendation", tone: "green", rule: "border-signal-good", desc: "Suggested action" },
-  assumption: { label: "Assumption", tone: "amber", rule: "border-signal-warn", desc: "Premise the analysis relies on" },
-  unknown: { label: "Unknown", tone: "red", rule: "border-signal-bad", desc: "Not available in the dataset" },
+  fact: { label: tk("Fact"), tone: "ink", rule: "border-ink-900", desc: tk("Copied from a synthetic source record") },
+  metric: { label: tk("Metric"), tone: "blue", rule: "border-accent", desc: tk("Calculated from records") },
+  interpretation: { label: tk("Interpretation"), tone: "violet", rule: "border-[#7C5CC4]", desc: tk("Rule-based reading of metrics") },
+  recommendation: { label: tk("Recommendation"), tone: "green", rule: "border-signal-good", desc: tk("Suggested action") },
+  assumption: { label: tk("Assumption"), tone: "amber", rule: "border-signal-warn", desc: tk("Premise the analysis relies on") },
+  unknown: { label: tk("Unknown"), tone: "red", rule: "border-signal-bad", desc: tk("Not available in the dataset") },
 };
 export function KindTag({ kind }: { kind: StatementKind }) {
   const m = KIND_META[kind];
-  return <Badge tone={m.tone} className="uppercase tracking-[0.06em] !text-[10px]">{m.label}</Badge>;
+  return <Badge tone={m.tone} className="uppercase tracking-[0.06em] !text-[10px]">{t(m.label)}</Badge>;
 }
 
 /** A finding line with provenance class and evidence */
@@ -198,7 +200,7 @@ export function EvidenceLinks({ ids, max = 6, label = "Evidence" }: { ids: strin
   const shown = open ? uniq : uniq.slice(0, max);
   return (
     <div className="flex flex-wrap items-center gap-1 text-[11px] text-ink-500">
-      <span className="mr-0.5 font-medium">{label} ({uniq.length}):</span>
+      <span className="mr-0.5 font-medium">{t(label)} ({uniq.length}) :</span>
       {shown.map((id) => {
         const href = recordHref(id);
         return href ? (
@@ -208,7 +210,7 @@ export function EvidenceLinks({ ids, max = 6, label = "Evidence" }: { ids: strin
         );
       })}
       {uniq.length > max && (
-        <button onClick={() => setOpen(!open)} className="text-accent-700 hover:underline">{open ? "less" : `+${uniq.length - max} more`}</button>
+        <button onClick={() => setOpen(!open)} className="text-accent-700 hover:underline">{open ? t("less") : t("+{v0} more", { v0: uniq.length - max })}</button>
       )}
     </div>
   );
@@ -218,9 +220,9 @@ export function EvidenceLinks({ ids, max = 6, label = "Evidence" }: { ids: strin
 export function ChartNote({ n, period, note, unit = "records" }: { n: number; period?: string; note?: ReactNode; unit?: string }) {
   return (
     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-500">
-      <span className="tnum">n = {n.toLocaleString("en-US")} {unit}</span>
+      <span className="tnum">n = {f.int(n)} {unit === "records" ? t("records") : unit}</span>
       {period && <span>· {period}</span>}
-      <span>· Synthetic demo data</span>
+      <span>{t("· Synthetic demo data")}</span>
       {note && <span>· {note}</span>}
     </div>
   );
@@ -231,16 +233,16 @@ export function ChartNote({ n, period, note, unit = "records" }: { n: number; pe
 export function Tabs<T extends string>({ tabs, value, onChange, className }: { tabs: { id: T; label: ReactNode; count?: number }[]; value: T; onChange: (v: T) => void; className?: string }) {
   return (
     <div role="tablist" className={clsx("flex gap-5 overflow-x-auto border-b border-line", className)}>
-      {tabs.map((t) => (
+      {tabs.map((tx) => (
         <button
-          key={t.id}
+          key={tx.id}
           role="tab"
-          aria-selected={value === t.id}
-          onClick={() => onChange(t.id)}
-          className={clsx("focus-ring -mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 pb-2 pt-1 text-[13px] font-medium transition-colors", value === t.id ? "border-ink-900 text-ink-900" : "border-transparent text-ink-500 hover:text-ink-800")}
+          aria-selected={value === tx.id}
+          onClick={() => onChange(tx.id)}
+          className={clsx("focus-ring -mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 pb-2 pt-1 text-[13px] font-medium transition-colors", value === tx.id ? "border-ink-900 text-ink-900" : "border-transparent text-ink-500 hover:text-ink-800")}
         >
-          {t.label}
-          {t.count !== undefined && <span className="tnum rounded-[3px] bg-canvas-sunken px-1 text-[10.5px] text-ink-600">{t.count}</span>}
+          {tx.label}
+          {tx.count !== undefined && <span className="tnum rounded-[3px] bg-canvas-sunken px-1 text-[10.5px] text-ink-600">{tx.count}</span>}
         </button>
       ))}
     </div>
@@ -262,7 +264,7 @@ export function Modal({ open, onClose, title, children, footer, width = "max-w-2
       <div role="dialog" aria-modal className={clsx("w-full animate-fadein rounded-md bg-white shadow-pop", width)} onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-line px-5 py-3">
           <div className="text-[15px] font-semibold text-ink-900">{title}</div>
-          <button className="btn-ghost !px-1.5" onClick={onClose} aria-label="Close"><X size={16} /></button>
+          <button className="btn-ghost !px-1.5" onClick={onClose} aria-label={t("Close")}><X size={16} /></button>
         </div>
         <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
         {footer && <div className="flex justify-end gap-2 border-t border-line px-5 py-3">{footer}</div>}
@@ -287,7 +289,7 @@ export function Drawer({ open, onClose, title, children, subtitle }: { open: boo
             <div className="text-[15px] font-semibold text-ink-900">{title}</div>
             {subtitle && <div className="mt-0.5 text-xs text-ink-500">{subtitle}</div>}
           </div>
-          <button className="btn-ghost !px-1.5" onClick={onClose} aria-label="Close"><X size={16} /></button>
+          <button className="btn-ghost !px-1.5" onClick={onClose} aria-label={t("Close")}><X size={16} /></button>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
       </aside>
@@ -365,7 +367,7 @@ export function Crumb({ items }: { items: { label: string; href?: string }[] }) 
 }
 
 export function SyntheticTag({ className }: { className?: string }) {
-  return <span className={clsx("inline-flex items-center rounded-[3px] border border-dashed border-[#C9871A] px-1 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-signal-warn", className)}>Synthetic</span>;
+  return <span className={clsx("inline-flex items-center rounded-[3px] border border-dashed border-[#C9871A] px-1 text-[9.5px] font-semibold uppercase tracking-[0.1em] text-signal-warn", className)}>{t("Synthetic")}</span>;
 }
 
 /** Toggle chip used in filter bars */

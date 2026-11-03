@@ -8,6 +8,8 @@
  *    (Awarded + Unsuccessful + Shortlisted-not-awarded). Pending and Withdrawn are excluded.
  *    Shown only with its sample size; awards without a disclosed bidder list do NOT enter the win rate.
  */
+import { t, tv } from "../i18n";
+import * as f from "../format";
 import { diffDays } from "../dates";
 import { type Ctx, buyerName, regionName, sectorName } from "./context";
 import { groupBy, sum } from "./stats";
@@ -136,15 +138,15 @@ export function companyProfile(c: Ctx, companyId: string): CompanyProfile | null
   const positioning = { rankInSector: idx >= 0 ? idx + 1 : null, sectorAwardees: rank.length, shareInSector: idx >= 0 && secAwards.length ? rank[idx].n / secAwards.length : null, sectorLabel: sectorName(c, primary) };
 
   const obs: CompanyProfile["observations"] = [];
-  if (positioning.rankInSector) obs.push({ text: `Ranks #${positioning.rankInSector} of ${positioning.sectorAwardees} awardees in ${positioning.sectorLabel} by recorded awards (${Math.round((positioning.shareInSector ?? 0) * 100)}% of ${secAwards.length} sector awards).`, evidence: (mineBySector.get(primary) ?? []).map((a) => a.opportunityId) });
+  if (positioning.rankInSector) obs.push({ text: t("Ranks #{v0} of {v1} awardees in {v2} by recorded awards ({v3} of {v4} sector awards).", { v0: positioning.rankInSector, v1: positioning.sectorAwardees, v2: positioning.sectorLabel, v3: f.pct(positioning.shareInSector ?? 0), v4: secAwards.length }), evidence: (mineBySector.get(primary) ?? []).map((a) => a.opportunityId) });
   const rep = buyerRelationships.filter((b) => b.repeat);
-  if (rep.length) obs.push({ text: `Repeat business with ${rep.length} buyer(s): ${rep.map((r) => `${r.name} (${r.awards} awards)`).join("; ")}.`, evidence: aw.filter((a) => rep.some((r) => r.id === a.buyerId)).map((a) => a.opportunityId) });
-  if (summary.decided >= 3) obs.push({ text: `Win rate ${Math.round((summary.winRate ?? 0) * 100)}% on ${summary.decided} decided participations with disclosed outcomes.`, evidence: ps.map((p) => p.opportunityId) });
-  else if (summary.participations > 0) obs.push({ text: `Only ${summary.decided} decided participation(s) recorded — sample too small for a reliable win rate.`, evidence: ps.map((p) => p.opportunityId) });
-  if (summary.participations && !summary.awards) obs.push({ text: `Active bidder without a recorded award: participant, not a verified awardee.`, evidence: ps.map((p) => p.opportunityId) });
-  if (summary.awardsWithoutBidData) obs.push({ text: `${summary.awardsWithoutBidData} of ${summary.awards} awards come from tenders whose bidder list was not disclosed; these do not enter the win rate.`, evidence: [] });
+  if (rep.length) obs.push({ text: t("Repeat business with {v0} buyer(s): {v1}.", { v0: rep.length, v1: rep.map((r) => t("{v0} ({v1} awards)", { v0: r.name, v1: r.awards })).join("; ") }), evidence: aw.filter((a) => rep.some((r) => r.id === a.buyerId)).map((a) => a.opportunityId) });
+  if (summary.decided >= 3) obs.push({ text: t("Win rate {v0} on {v1} decided participations with disclosed outcomes.", { v0: f.pct(summary.winRate ?? 0), v1: summary.decided }), evidence: ps.map((p) => p.opportunityId) });
+  else if (summary.participations > 0) obs.push({ text: t("Only {v0} decided participation(s) recorded — sample too small for a reliable win rate.", { v0: summary.decided }), evidence: ps.map((p) => p.opportunityId) });
+  if (summary.participations && !summary.awards) obs.push({ text: t("Active bidder without a recorded award: participant, not a verified awardee."), evidence: ps.map((p) => p.opportunityId) });
+  if (summary.awardsWithoutBidData) obs.push({ text: t("{v0} of {v1} awards come from tenders whose bidder list was not disclosed; these do not enter the win rate.", { v0: summary.awardsWithoutBidData, v1: summary.awards }), evidence: [] });
   const recent = aw.filter((a) => diffDays(c.ref, a.awardDate) <= 365);
-  if (aw.length >= 2) obs.push({ text: `${recent.length} award(s) in the last 12 months vs ${aw.length - recent.length} earlier.`, evidence: recent.map((a) => a.opportunityId) });
+  if (aw.length >= 2) obs.push({ text: t("{v0} award(s) in the last 12 months vs {v1} earlier.", { v0: recent.length, v1: aw.length - recent.length }), evidence: recent.map((a) => a.opportunityId) });
 
   return { summary, awards: aw, participations: ps, sectorPresence, buyerRelationships, regionActivity, byYear, headToHead, positioning, observations: obs };
 }

@@ -1,4 +1,6 @@
 "use client";
+import { t, tk } from "@/lib/i18n";
+import { tn } from "@/lib/i18n/react";
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Download, Search } from "lucide-react";
@@ -14,14 +16,14 @@ import { Chip, FilterBar, PageHeader, SelectFilter } from "@/components/ui";
 import type { Opportunity } from "@/lib/types";
 
 const STATUS_VIEWS = [
-  { id: "all", label: "All" },
-  { id: "active", label: "Active" },
-  { id: "closing", label: "Closing ≤14 days" },
-  { id: "new", label: "New (30 days)" },
-  { id: "evaluation", label: "Under evaluation" },
-  { id: "awarded", label: "Awarded" },
-  { id: "closed", label: "Closed / other" },
-  { id: "saved", label: "Saved" },
+  { id: "all", label: tk("All") },
+  { id: "active", label: tk("Active") },
+  { id: "closing", label: tk("Closing ≤14 days") },
+  { id: "new", label: tk("New (30 days)") },
+  { id: "evaluation", label: tk("Under evaluation") },
+  { id: "awarded", label: tk("Awarded@@view") },
+  { id: "closed", label: tk("Closed / other") },
+  { id: "saved", label: tk("Saved") },
 ];
 
 function OpportunitiesInner() {
@@ -80,32 +82,32 @@ function OpportunitiesInner() {
 
   return (
     <div>
-      <PageHeader eyebrow="Module 02 · Opportunity intelligence" title="Procurement opportunities"
-        description="Search the full record set, narrow by buyer, sector, geography, value and procedure, and open any tender as an intelligence dossier."
-        meta={<><span>{c.clean.length} unique records</span><span>{c.duplicates.length} detected duplicates hidden</span><span>{counts.active} active</span></>}
-        actions={<button className="btn" onClick={exportCsv}><Download size={14} /> Export CSV ({result.length})</button>}>
+      <PageHeader eyebrow={t("Module 02 · Opportunity intelligence")} title={t("Procurement opportunities")}
+        description={t("Search the full record set, narrow by buyer, sector, geography, value and procedure, and open any tender as an intelligence dossier.")}
+        meta={<><span>{c.clean.length} {t("unique records")}</span><span>{c.duplicates.length} {t("detected duplicates hidden")}</span><span>{counts.active} {t("active")}</span></>}
+        actions={<button className="btn" onClick={exportCsv}><Download size={14} /> {t("Export CSV ({n})", { n: result.length })}</button>}>
         <div className="relative max-w-2xl">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search reference, object, buyer, city, sector…" className="field !h-10 pl-9 text-[14px]" aria-label="Search opportunities" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("Search reference, object, buyer, city, sector…")} className="field !h-10 pl-9 text-[14px]" aria-label={t("Search opportunities")} />
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {STATUS_VIEWS.map((v) => (
-            <Chip key={v.id} active={view === v.id} onClick={() => setView(v.id)}>{v.label}{v.id === "active" ? ` · ${counts.active}` : v.id === "saved" ? ` · ${counts.saved}` : ""}</Chip>
+            <Chip key={v.id} active={view === v.id} onClick={() => setView(v.id)}>{t(v.label)}{v.id === "active" ? ` · ${counts.active}` : v.id === "saved" ? ` · ${counts.saved}` : ""}</Chip>
           ))}
         </div>
       </PageHeader>
-      <FilterBar right={<label className="flex items-center gap-1.5 text-xs text-ink-600"><input type="checkbox" checked={includeDup} onChange={(e) => setIncludeDup(e.target.checked)} /> Show detected duplicates</label>}>
-        <SelectFilter label="Sector" value={sector} onChange={setSector} options={[{ value: "", label: "All sectors" }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name })), { value: "none", label: "Unclassified" }]} />
-        <SelectFilter label="Region" value={region} onChange={setRegion} options={[{ value: "", label: "All regions" }, ...c.ds.regions.map((r) => ({ value: r.id, label: r.name }))]} />
-        <SelectFilter label="Buyer" value={buyer} onChange={setBuyer} width="w-56" options={[{ value: "", label: "All buyers" }, ...[...c.ds.buyers].sort((a, b) => a.acronym.localeCompare(b.acronym)).map((b) => ({ value: b.id, label: `${b.acronym} — ${b.name}` }))]} />
-        <SelectFilter label="Procedure" value={procedure} onChange={setProcedure} options={[{ value: "", label: "All procedures" }, ...PROCEDURES.map((p) => ({ value: p, label: p }))]} />
-        <SelectFilter label="Estimated value" value={band} onChange={setBand} width="w-36" options={[{ value: "", label: "Any value" }, { value: "s", label: "< 1M MAD" }, { value: "m", label: "1M – 5M" }, { value: "l", label: "5M – 20M" }, { value: "xl", label: "≥ 20M" }, { value: "unknown", label: "Not disclosed" }]} />
-        <SelectFilter label="Published" value={year} onChange={setYear} width="w-28" options={[{ value: "", label: "Any year" }, ...["2026", "2025", "2024", "2023"].map((y) => ({ value: y, label: y }))]} />
+      <FilterBar right={<label className="flex items-center gap-1.5 text-xs text-ink-600"><input type="checkbox" checked={includeDup} onChange={(e) => setIncludeDup(e.target.checked)} /> {t("Show detected duplicates")}</label>}>
+        <SelectFilter label={t("Sector")} value={sector} onChange={setSector} options={[{ value: "", label: t("All sectors") }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name })), { value: "none", label: t("Unclassified") }]} />
+        <SelectFilter label={t("Region")} value={region} onChange={setRegion} options={[{ value: "", label: t("All regions") }, ...c.ds.regions.map((r) => ({ value: r.id, label: r.name }))]} />
+        <SelectFilter label={t("Buyer")} value={buyer} onChange={setBuyer} width="w-56" options={[{ value: "", label: t("All buyers") }, ...[...c.ds.buyers].sort((a, b) => a.acronym.localeCompare(b.acronym)).map((b) => ({ value: b.id, label: `${b.acronym} — ${b.name}` }))]} />
+        <SelectFilter label={t("Procedure")} value={procedure} onChange={setProcedure} options={[{ value: "", label: t("All procedures") }, ...PROCEDURES.map((p) => ({ value: p, label: p }))]} />
+        <SelectFilter label={t("Estimated value")} value={band} onChange={setBand} width="w-36" options={[{ value: "", label: t("Any value") }, { value: "s", label: t("< 1M MAD") }, { value: "m", label: t("1M – 5M") }, { value: "l", label: t("5M – 20M") }, { value: "xl", label: "≥ 20M" }, { value: "unknown", label: t("Not disclosed") }]} />
+        <SelectFilter label={t("Published")} value={year} onChange={setYear} width="w-28" options={[{ value: "", label: t("Any year") }, ...["2026", "2025", "2024", "2023"].map((y) => ({ value: y, label: y }))]} />
       </FilterBar>
       <div className="px-5 py-5 md:px-8">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-[12.5px] text-ink-600">
-          <div><b className="tnum text-ink-900">{result.length}</b> opportunities · combined known estimate <b className="tnum text-ink-900">{f.mad(totalKnown.reduce((a, o) => a + (o.estimatedValue ?? 0), 0))}</b> ({totalKnown.length} with budget)</div>
-          <div className="text-[11px] text-ink-500">Click a column to sort · click a row to open its dossier</div>
+          <div>{tn("{n} opportunities · combined known estimate {value} ({known} with budget)", { n: <b className="tnum text-ink-900">{result.length}</b>, value: <b className="tnum text-ink-900">{f.mad(totalKnown.reduce((a, o) => a + (o.estimatedValue ?? 0), 0))}</b>, known: totalKnown.length })}</div>
+          <div className="text-[11px] text-ink-500">{t("Click a column to sort · click a row to open its dossier")}</div>
         </div>
         <OppTable rows={result} pageSize={20} />
       </div>

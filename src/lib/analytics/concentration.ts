@@ -9,6 +9,7 @@
 import { type Ctx, type MarketFilter, companyName, filterAwards, filterOpps, sectorName } from "./context";
 import { groupBy, hhi, hhiBand, sum, topNShare } from "./stats";
 import type { Award } from "../types";
+import { t } from "../i18n";
 
 export const SMALL_SAMPLE = 8;
 
@@ -49,7 +50,7 @@ function concentrationOf(c: Ctx, key: string, label: string, awards: Award[]): C
 }
 
 export function overallConcentration(c: Ctx, f: MarketFilter = {}): ConcentrationRow {
-  return concentrationOf(c, "all", "All sectors", filterAwards(c, f));
+  return concentrationOf(c, "all", t("All sectors"), filterAwards(c, f));
 }
 
 export function concentrationBySector(c: Ctx, f: MarketFilter = {}): ConcentrationRow[] {
