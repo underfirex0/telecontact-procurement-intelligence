@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0b1e36;
+  --accent: #2563a8;
+  --line: #e3e7ee;
+  --canvas: #f6f7f9;
+  /* validated categorical series (dataviz validator: all checks pass, light mode) */
+  --series-1: #2563a8;
+  --series-2: #d0782a;
+  --series-3: #17917a;
+  --series-4: #7c5cc4;
+  --series-5: #c4476b;
+  --series-muted: #b3c0d1;
+}
+
+html { color-scheme: light; }
+body {
+  background: #ffffff;
+  color: var(--ink);
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .tnum { font-variant-numeric: tabular-nums; }
+  .eyebrow { @apply text-2xs font-semibold uppercase tracking-[0.12em] text-ink-500; }
+  .hairline { @apply border-line; }
+  .link { @apply text-accent-700 underline-offset-2 hover:underline; }
+  .focus-ring { @apply outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-1; }
+
+  .btn { @apply focus-ring inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[5px] border border-line-strong bg-white px-3 text-sm font-medium text-ink-800 transition-colors hover:border-ink-300 hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply focus-ring inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[5px] bg-ink-900 px-3 text-sm font-medium text-white transition-colors hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-ghost { @apply focus-ring inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-[5px] px-2 text-sm font-medium text-ink-600 transition-colors hover:bg-canvas hover:text-ink-900; }
+  .btn-sm { @apply h-7 px-2 text-xs; }
+
+  .field { @apply focus-ring h-8 w-full rounded-[5px] border border-line-strong bg-white px-2.5 text-sm text-ink-900 placeholder:text-ink-400 hover:border-ink-300; }
+  textarea.field { @apply h-auto py-2 leading-relaxed; }
+  select.field { @apply appearance-none bg-no-repeat pr-7; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364799A' fill='none' stroke-width='1.4'/%3E%3C/svg%3E"); background-position: right 0.6rem center; }
+  .label { @apply mb-1 block text-xs font-medium text-ink-600; }
+
+  .tbl { @apply w-full border-collapse text-sm; }
+  .tbl thead th { @apply sticky top-0 z-[1] border-b border-line-strong bg-white px-3 py-2 text-left text-2xs font-semibold uppercase tracking-[0.08em] text-ink-500; }
+  .tbl tbody td { @apply border-b border-line-soft px-3 py-2 align-top text-ink-800; }
+  .tbl tbody tr { @apply transition-colors; }
+  .tbl tbody tr:hover td { @apply bg-[#F5F8FC]; }
+  .tbl.dense tbody td { @apply py-1.5; }
+
+  .kicker-rule { @apply relative pl-3 before:absolute before:left-0 before:top-1 before:h-3 before:w-[2px] before:bg-accent; }
+}
+
+/* Print / PDF export of reports */
+@media print {
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  body { background: #fff !important; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .report-sheet { box-shadow: none !important; border: 0 !important; max-width: none !important; padding: 0 !important; }
+  .report-sheet section { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+.print-only { display: none; }
+
+/* Recharts polish */
+.recharts-cartesian-axis-tick-value { font-size: 11px; fill: #64799a; font-variant-numeric: tabular-nums; }
+.recharts-tooltip-cursor { fill: rgba(37, 99, 168, 0.06); }
