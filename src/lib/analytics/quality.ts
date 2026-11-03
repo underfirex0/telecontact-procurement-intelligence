@@ -8,6 +8,7 @@
  *         + 15% × Integrity      (share of relationship checks that pass)
  *         + 15% × Outcome coverage (share of award-eligible tenders with a recorded award)
  */
+import { t, tk } from "../i18n";
 import { SECTORS } from "../data/reference";
 import { diffDays } from "../dates";
 import type { Opportunity } from "../types";
@@ -55,14 +56,14 @@ export interface QualityReport {
 }
 
 const CRITICAL: { field: keyof Opportunity; label: string }[] = [
-  { field: "publicationDate", label: "Publication date" },
-  { field: "deadline", label: "Submission deadline" },
-  { field: "buyerId", label: "Buyer identification" },
-  { field: "sectorId", label: "Sector classification" },
-  { field: "regionId", label: "Region" },
-  { field: "city", label: "City" },
-  { field: "estimatedValue", label: "Estimated budget" },
-  { field: "contractDurationMonths", label: "Contract duration" },
+  { field: "publicationDate", label: tk("Publication date") },
+  { field: "deadline", label: tk("Submission deadline") },
+  { field: "buyerId", label: tk("Buyer identification") },
+  { field: "sectorId", label: tk("Sector classification") },
+  { field: "regionId", label: tk("Region") },
+  { field: "city", label: tk("City") },
+  { field: "estimatedValue", label: tk("Estimated budget") },
+  { field: "contractDurationMonths", label: tk("Contract duration") },
 ];
 
 /** Which sector does the object text point to? Returns sector id or null. */
@@ -89,21 +90,21 @@ export function analyseQuality(c: Ctx): QualityReport {
     return { field: String(field), label, present, total: all.length, rate: present / all.length, critical: true };
   });
   const docsPresent = all.filter((o) => o.documents.length >= 3).length;
-  fields.push({ field: "documents", label: "Tender documents (≥3)", present: docsPresent, total: all.length, rate: docsPresent / all.length, critical: false });
+  fields.push({ field: "documents", label: tk("Tender documents (≥3)"), present: docsPresent, total: all.length, rate: docsPresent / all.length, critical: false });
 
   for (const o of all) {
     const missing = CRITICAL.filter(({ field }) => o[field] === null || o[field] === undefined).map((f) => f.label);
     for (const m of missing) {
-      issues.push({ kind: "Missing information", severity: ["Buyer identification", "Submission deadline", "Sector classification"].includes(m) ? "High" : "Medium", recordType: "Opportunity", recordId: o.id, detail: `${m} not provided by source.` });
+      issues.push({ kind: "Missing information", severity: ["Buyer identification", "Submission deadline", "Sector classification"].includes(m) ? "High" : "Medium", recordType: "Opportunity", recordId: o.id, detail: t("{v0} not provided by source.", { v0: t(m) }) });
     }
   }
   const unreliable = all
     .map((o) => ({ id: o.id, missing: CRITICAL.filter(({ field }) => o[field] === null || o[field] === undefined).map((f) => f.label) }))
     .filter((x) => x.missing.length >= 2);
-  for (const u of unreliable) issues.push({ kind: "Unreliable record", severity: "High", recordType: "Opportunity", recordId: u.id, detail: `${u.missing.length} critical fields missing (${u.missing.join(", ")}). Excluded from value-based metrics where relevant.` });
+  for (const u of unreliable) issues.push({ kind: "Unreliable record", severity: "High", recordType: "Opportunity", recordId: u.id, detail: t("{v0} critical fields missing ({v1}). Excluded from value-based metrics where relevant.", { v0: u.missing.length, v1: u.missing.map((x) => t(x)).join(", ") }) });
 
   // duplicates
-  for (const d of c.duplicates) issues.push({ kind: "Duplicate record", severity: "High", recordType: "Opportunity", recordId: d.id, detail: `Same reference, buyer and object as ${d.keptId}; excluded from analytics (earliest record kept).` });
+  for (const d of c.duplicates) issues.push({ kind: "Duplicate record", severity: "High", recordType: "Opportunity", recordId: d.id, detail: t("Same reference, buyer and object as {v0}; excluded from analytics (earliest record kept).", { v0: d.keptId }) });
 
   // inconsistent classifications
   const inconsistent: QualityReport["inconsistent"] = [];
@@ -112,7 +113,7 @@ export function analyseQuality(c: Ctx): QualityReport {
     const suggested = sectorFromText(o.title);
     if (suggested && suggested !== o.sectorId) {
       inconsistent.push({ id: o.id, coded: o.sectorId, textSuggests: suggested });
-      issues.push({ kind: "Inconsistent classification", severity: "Medium", recordType: "Opportunity", recordId: o.id, detail: `Coded as ${c.sector.get(o.sectorId)?.name}; object text suggests ${c.sector.get(suggested)?.name}.` });
+      issues.push({ kind: "Inconsistent classification", severity: "Medium", recordType: "Opportunity", recordId: o.id, detail: t("Coded as {v0}; object text suggests {v1}.", { v0: c.sector.get(o.sectorId)?.name, v1: c.sector.get(suggested)?.name }) });
     }
   }
 
@@ -122,8 +123,8 @@ export function analyseQuality(c: Ctx): QualityReport {
   for (const co of c.ds.companies) byIce.set(co.ice, [...(byIce.get(co.ice) ?? []), co.id]);
   for (const [ice, ids] of byIce) {
     if (ids.length > 1) {
-      duplicateEntities.push({ ids, names: ids.map((i) => c.company.get(i)!.name), reason: `Shared fictional ICE ${ice}` });
-      issues.push({ kind: "Duplicate entity", severity: "High", recordType: "Company", recordId: ids.join(" / "), detail: `${ids.map((i) => c.company.get(i)!.name).join(" vs ")} share identifier ${ice}. Award counts may be split across entities.` });
+      duplicateEntities.push({ ids, names: ids.map((i) => c.company.get(i)!.name), reason: t("Shared fictional ICE {v0}", { v0: ice }) });
+      issues.push({ kind: "Duplicate entity", severity: "High", recordType: "Company", recordId: ids.join(" / "), detail: t("{v0} share identifier {v1}. Award counts may be split across entities.", { v0: ids.map((i) => c.company.get(i)!.name).join(t(" vs ")), v1: ice }) });
     }
   }
 
@@ -137,21 +138,21 @@ export function analyseQuality(c: Ctx): QualityReport {
   };
   for (const a of c.ds.awards) {
     const o = c.opp.get(a.opportunityId);
-    check(!!o && o.status === "Awarded", { kind: "Incomplete relationship", severity: "High", recordType: "Award", recordId: a.id, detail: "Award linked to a tender not in Awarded status." });
-    check(c.company.has(a.companyId), { kind: "Incomplete relationship", severity: "High", recordType: "Award", recordId: a.id, detail: "Awardee not found in company registry." });
-    check(a.amount !== null, { kind: "Missing information", severity: "Medium", recordType: "Award", recordId: a.id, detail: "Award amount not published." });
+    check(!!o && o.status === "Awarded", { kind: "Incomplete relationship", severity: "High", recordType: "Award", recordId: a.id, detail: t("Award linked to a tender not in Awarded status.") });
+    check(c.company.has(a.companyId), { kind: "Incomplete relationship", severity: "High", recordType: "Award", recordId: a.id, detail: t("Awardee not found in company registry.") });
+    check(a.amount !== null, { kind: "Missing information", severity: "Medium", recordType: "Award", recordId: a.id, detail: t("Award amount not published.") });
   }
   for (const o of c.clean.filter((x) => x.status === "Awarded")) {
-    check((c.awardsByOpp.get(o.id) ?? []).length > 0, { kind: "Incomplete relationship", severity: "High", recordType: "Opportunity", recordId: o.id, detail: "Status Awarded but no award record." });
+    check((c.awardsByOpp.get(o.id) ?? []).length > 0, { kind: "Incomplete relationship", severity: "High", recordType: "Opportunity", recordId: o.id, detail: t("Status Awarded but no award record.") });
     const parts = c.partsByOpp.get(o.id);
     if (parts) {
       const winners = (c.awardsByOpp.get(o.id) ?? []).map((a) => a.companyId);
       const listed = parts.map((p) => p.companyId);
-      check(winners.every((w) => listed.includes(w)), { kind: "Incomplete relationship", severity: "Medium", recordType: "Participation", recordId: o.id, detail: "Awardee missing from the recorded bidder list." });
+      check(winners.every((w) => listed.includes(w)), { kind: "Incomplete relationship", severity: "Medium", recordType: "Participation", recordId: o.id, detail: t("Awardee missing from the recorded bidder list.") });
     }
   }
   for (const s of c.ds.suppliers) {
-    check(s.contactIds.length > 0, { kind: "Incomplete relationship", severity: "Low", recordType: "Supplier", recordId: s.id, detail: "No named contact recorded for supplier." });
+    check(s.contactIds.length > 0, { kind: "Incomplete relationship", severity: "Low", recordType: "Supplier", recordId: s.id, detail: t("No named contact recorded for supplier.") });
   }
 
   // award coverage
@@ -168,11 +169,11 @@ export function analyseQuality(c: Ctx): QualityReport {
   const integrity = checks ? passed / checks : 1;
   const outcome = eligible.length ? covered.length / eligible.length : 0;
   const components = [
-    { key: "completeness", label: "Completeness", weight: 0.4, value: completeness, explanation: `Mean fill rate of ${CRITICAL.length} critical opportunity fields across ${all.length} records.` },
-    { key: "uniqueness", label: "Uniqueness", weight: 0.15, value: uniqueness, explanation: `${c.duplicates.length} duplicate records detected (same reference, buyer and object).` },
-    { key: "consistency", label: "Consistency", weight: 0.15, value: consistency, explanation: `${inconsistent.length} records whose object text contradicts the sector code.` },
-    { key: "integrity", label: "Relationship integrity", weight: 0.15, value: integrity, explanation: `${passed} of ${checks} relationship checks pass (award↔tender, awardee↔registry, bidder lists, supplier contacts).` },
-    { key: "outcome", label: "Outcome coverage", weight: 0.15, value: outcome, explanation: `${covered.length} of ${eligible.length} award-eligible tenders (deadline ≥45 days ago, not cancelled/unsuccessful) have a recorded award.` },
+    { key: "completeness", label: tk("Completeness"), weight: 0.4, value: completeness, explanation: t("Mean fill rate of {v0} critical opportunity fields across {v1} records.", { v0: CRITICAL.length, v1: all.length }) },
+    { key: "uniqueness", label: tk("Uniqueness"), weight: 0.15, value: uniqueness, explanation: t("{v0} duplicate records detected (same reference, buyer and object).", { v0: c.duplicates.length }) },
+    { key: "consistency", label: tk("Consistency"), weight: 0.15, value: consistency, explanation: t("{v0} records whose object text contradicts the sector code.", { v0: inconsistent.length }) },
+    { key: "integrity", label: tk("Relationship integrity"), weight: 0.15, value: integrity, explanation: t("{v0} of {v1} relationship checks pass (award↔tender, awardee↔registry, bidder lists, supplier contacts).", { v0: passed, v1: checks }) },
+    { key: "outcome", label: tk("Outcome coverage"), weight: 0.15, value: outcome, explanation: t("{v0} of {v1} award-eligible tenders (deadline ≥45 days ago, not cancelled/unsuccessful) have a recorded award.", { v0: covered.length, v1: eligible.length }) },
   ];
   const score = Math.round(components.reduce((a, x) => a + x.weight * x.value, 0) * 1000) / 10;
 

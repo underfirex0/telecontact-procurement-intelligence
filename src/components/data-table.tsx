@@ -1,4 +1,6 @@
 "use client";
+import { t } from "@/lib/i18n";
+import * as f from "@/lib/format";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -87,7 +89,7 @@ export function DataTable<T>({
               );
             })}
             {result.rows.length === 0 && (
-              <tr><td colSpan={columns.length} className="!py-10 text-center text-sm text-ink-500">{empty ?? "No records match the current filters."}</td></tr>
+              <tr><td colSpan={columns.length} className="!py-10 text-center text-sm text-ink-500">{empty ?? t("No records match the current filters.")}</td></tr>
             )}
           </tbody>
         </table>
@@ -95,14 +97,14 @@ export function DataTable<T>({
       {(result.pages > 1 || footer) && (
         <div className="flex flex-wrap items-center justify-between gap-2 pt-3 text-xs text-ink-500">
           <div className="tnum">
-            {result.total ? `${(result.page - 1) * result.pageSize + 1}–${Math.min(result.total, result.page * result.pageSize)} of ${result.total.toLocaleString("en-US")}` : "0 records"}
+            {result.total ? t("{from}–{to} of {total}", { from: (result.page - 1) * result.pageSize + 1, to: Math.min(result.total, result.page * result.pageSize), total: f.int(result.total) }) : t("0 records")}
             {footer && <span className="ml-3">{footer}</span>}
           </div>
           {result.pages > 1 && (
             <div className="flex items-center gap-1">
-              <button className="btn btn-sm" disabled={result.page <= 1} onClick={() => setPage(result.page - 1)} aria-label="Previous page"><ChevronLeft size={13} /></button>
-              <span className="tnum px-2">Page {result.page} / {result.pages}</span>
-              <button className="btn btn-sm" disabled={result.page >= result.pages} onClick={() => setPage(result.page + 1)} aria-label="Next page"><ChevronRight size={13} /></button>
+              <button className="btn btn-sm" disabled={result.page <= 1} onClick={() => setPage(result.page - 1)} aria-label={t("Previous page")}><ChevronLeft size={13} /></button>
+              <span className="tnum px-2">{t("Page {page} / {pages}", { page: result.page, pages: result.pages })}</span>
+              <button className="btn btn-sm" disabled={result.page >= result.pages} onClick={() => setPage(result.page + 1)} aria-label={t("Next page")}><ChevronRight size={13} /></button>
             </div>
           )}
         </div>

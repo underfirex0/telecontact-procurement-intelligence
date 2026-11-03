@@ -20,6 +20,14 @@ Telecontact Intelligence — Procurement Intelligence prototype. Next.js 14 App 
 - `src/components/` — `ui.tsx` primitives, `data-table.tsx`, `charts.tsx`, `shell.tsx`, `common.tsx`, forms
 - `src/app/` — one folder per module route
 
+## Translations (English / French)
+- Every user-visible string goes through `t("English text", { vars })` (`src/lib/i18n`); data values (statuses, sectors, countries, generated data text) through `tv(value)`. Sentences with bold parts use `tn()` from `@/lib/i18n/react`.
+- Never build a sentence from fragments — use one template with `{placeholders}` so French word order works.
+- Module-level strings use `tk("...")` and are translated with `t()` where rendered.
+- Add the French text to `src/lib/i18n/fr.ts` (same placeholders). `tests/i18n.test.ts` fails if a key is missing, if placeholders differ, or if French analytics/reports contain English sentences.
+- When one English word needs two French translations, tag the key: `t("Awarded@@view")`.
+- Format numbers/dates only through `src/lib/format.ts` (locale-aware).
+
 ## Rules of the codebase
 - Business calculations live in `src/lib/analytics`, never in components.
 - Never hardcode a KPI: compute it from records and show sample size / period (`ChartNote`).

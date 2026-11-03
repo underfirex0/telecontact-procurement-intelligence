@@ -1,3 +1,4 @@
+import { LocaleProvider } from "@/lib/i18n/react";
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/source-serif-4";
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="font-sans text-base">
         <WorkspaceProvider>
-          <Shell>{children}</Shell>
+          <LocaleProvider>
+            <Shell>{children}</Shell>
+          </LocaleProvider>
         </WorkspaceProvider>
       </body>
     </html>

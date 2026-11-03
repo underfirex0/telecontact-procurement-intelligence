@@ -5,6 +5,7 @@
  * Duplicates are *detected* here from the records themselves, and every market
  * metric runs on `clean` opportunities (detected duplicates removed).
  */
+import { t } from "../i18n";
 import type { Award, Buyer, Company, Dataset, Opportunity, Participation, Region, Sector } from "../types";
 import { groupBy } from "./stats";
 
@@ -77,10 +78,10 @@ export function buildContext(ds: Dataset): Ctx {
   };
 }
 
-export const sectorName = (c: Ctx, id: string | null | undefined) => (id ? c.sector.get(id)?.name ?? id : "Unclassified");
-export const regionName = (c: Ctx, id: string | null | undefined) => (id ? c.region.get(id)?.name ?? id : "Unknown region");
-export const buyerName = (c: Ctx, id: string | null | undefined) => (id ? c.buyer.get(id)?.name ?? id : "Unidentified buyer");
-export const companyName = (c: Ctx, id: string | null | undefined) => (id ? c.company.get(id)?.name ?? id : "Unidentified");
+export const sectorName = (c: Ctx, id: string | null | undefined) => (id ? c.sector.get(id)?.name ?? id : t("Unclassified"));
+export const regionName = (c: Ctx, id: string | null | undefined) => (id ? c.region.get(id)?.name ?? id : t("Unknown region"));
+export const buyerName = (c: Ctx, id: string | null | undefined) => (id ? c.buyer.get(id)?.name ?? id : t("Unidentified buyer"));
+export const companyName = (c: Ctx, id: string | null | undefined) => (id ? c.company.get(id)?.name ?? id : t("Unidentified"));
 
 /** Generic filter applied across market analytics. */
 export interface MarketFilter {

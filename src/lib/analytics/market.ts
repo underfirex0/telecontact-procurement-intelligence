@@ -5,6 +5,7 @@
  */
 import { addDays, addMonths, monthKey, monthsBetween, quarterKey, quartersBetween } from "../dates";
 import type { Opportunity } from "../types";
+import { t, tv } from "../i18n";
 import { type Ctx, type MarketFilter, filterOpps, regionName, sectorName } from "./context";
 import { countBy, groupBy, hhi, median, pctChange, sum, topNShare } from "./stats";
 
@@ -24,7 +25,7 @@ export function breakdown(rows: Opportunity[], key: (o: Opportunity) => string |
   const out: Breakdown[] = [];
   for (const [k, list] of groups) {
     const vals = list.map((o) => o.estimatedValue).filter((v): v is number => v !== null);
-    out.push({ key: k, label: k === "__none" ? "Not specified" : label(k), count: list.length, share: list.length / rows.length, totalValue: sum(vals), valueN: vals.length, medianValue: median(vals), ids: list.map((o) => o.id) });
+    out.push({ key: k, label: k === "__none" ? t("Not specified") : label(k), count: list.length, share: list.length / rows.length, totalValue: sum(vals), valueN: vals.length, medianValue: median(vals), ids: list.map((o) => o.id) });
   }
   return out.sort((a, b) => b.count - a.count);
 }
@@ -42,7 +43,7 @@ export function byProcedure(c: Ctx, f: MarketFilter = {}) {
   return breakdown(filterOpps(c, f), (o) => o.procedure, (k) => k);
 }
 export function byBuyerType(c: Ctx, f: MarketFilter = {}) {
-  return breakdown(filterOpps(c, f), (o) => (o.buyerId ? c.buyer.get(o.buyerId)?.type ?? null : null), (k) => k);
+  return breakdown(filterOpps(c, f), (o) => (o.buyerId ? c.buyer.get(o.buyerId)?.type ?? null : null), (k) => tv(k));
 }
 
 export interface TimePoint {
@@ -168,7 +169,7 @@ export function seasonality(c: Ctx, f: MarketFilter = {}) {
   const counts = Array.from({ length: 12 }, () => 0);
   for (const o of rows) counts[Number(o.publicationDate!.slice(5, 7)) - 1]++;
   const avg = rows.length / 12;
-  const names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m) => t(m));
   return { months: counts.map((n, i) => ({ month: names[i], count: n, index: avg ? n / avg : 0 })), n: rows.length };
 }
 

@@ -1,6 +1,8 @@
 /**
  * Buyer (contracting authority) analysis.
  */
+import { t, tv } from "../i18n";
+import * as f from "../format";
 import { diffDays, yearOf } from "../dates";
 import type { Opportunity } from "../types";
 import { type Ctx, companyName, regionName, sectorName } from "./context";
@@ -99,17 +101,17 @@ export function buyerProfile(c: Ctx, buyerId: string): BuyerProfile | null {
 
   // Observations: rule-based, each tied to the records that support it.
   const obs: BuyerProfile["observations"] = [];
-  if (sectorMix[0] && opps.length >= 3) obs.push({ text: `${sectorMix[0].label} accounts for ${Math.round(sectorMix[0].share * 100)}% of this buyer's ${opps.length} recorded opportunities.`, evidence: secGroups.get(sectorMix[0].key)!.map((o) => o.id) });
-  for (const r of recurring.slice(0, 3)) obs.push({ text: `Recurring purchasing line in ${r.sectorName}: ${r.occurrences.length} publications, median interval ${r.medianIntervalDays ?? "n/a"} days (${r.regularity}).`, evidence: r.occurrences.map((o) => o.id) });
-  if (awardees[0] && awards.length >= 3) obs.push({ text: `${awardees[0].name} holds ${awardees[0].awards} of ${awards.length} recorded awards (${Math.round(awardees[0].share * 100)}%)${awardees[0].share >= 0.5 ? " — a strong incumbent relationship" : ""}.`, evidence: byCo.get(awardees[0].id)!.map((a) => a.opportunityId) });
+  if (sectorMix[0] && opps.length >= 3) obs.push({ text: t("{v0} accounts for {v1} of this buyer's {v2} recorded opportunities.", { v0: sectorMix[0].label, v1: f.pct(sectorMix[0].share), v2: opps.length }), evidence: secGroups.get(sectorMix[0].key)!.map((o) => o.id) });
+  for (const r of recurring.slice(0, 3)) obs.push({ text: t("Recurring purchasing line in {v0}: {v1} publications, median interval {v2} days ({v3}).", { v0: r.sectorName, v1: r.occurrences.length, v2: r.medianIntervalDays ?? t("n/a"), v3: tv(r.regularity).toLowerCase() }), evidence: r.occurrences.map((o) => o.id) });
+  if (awardees[0] && awards.length >= 3) obs.push({ text: awardees[0].share >= 0.5 ? t("{v0} holds {v1} of {v2} recorded awards ({v3}) — a strong incumbent relationship.", { v0: awardees[0].name, v1: awardees[0].awards, v2: awards.length, v3: f.pct(awardees[0].share) }) : t("{v0} holds {v1} of {v2} recorded awards ({v3}).", { v0: awardees[0].name, v1: awardees[0].awards, v2: awards.length, v3: f.pct(awardees[0].share) }), evidence: byCo.get(awardees[0].id)!.map((a) => a.opportunityId) });
   const y25 = perYear.find((p) => p.year === 2025)!.count;
   const y24 = perYear.find((p) => p.year === 2024)!.count;
   if (y24 + y25 >= 4) {
     const ch = y24 ? (y25 - y24) / y24 : null;
-    if (ch !== null && Math.abs(ch) >= 0.25) obs.push({ text: `Publication volume ${ch > 0 ? "rose" : "fell"} from ${y24} (2024) to ${y25} (2025), ${ch > 0 ? "+" : ""}${Math.round(ch * 100)}%.`, evidence: dated.filter((o) => ["2024", "2025"].includes(o.publicationDate!.slice(0, 4))).map((o) => o.id) });
+    if (ch !== null && Math.abs(ch) >= 0.25) obs.push({ text: ch > 0 ? t("Publication volume rose from {v1} (2024) to {v2} (2025), {v3}.", { v1: y24, v2: y25, v3: f.signedPct(ch) }) : t("Publication volume fell from {v1} (2024) to {v2} (2025), {v3}.", { v1: y24, v2: y25, v3: f.signedPct(ch) }), evidence: dated.filter((o) => ["2024", "2025"].includes(o.publicationDate!.slice(0, 4))).map((o) => o.id) });
   }
-  if (cancellationRate !== null && cancellationRate >= 0.25) obs.push({ text: `${cancelled.length} of ${decided.length} decided procedures were cancelled or unsuccessful — factor this into bid effort.`, evidence: cancelled.map((o) => o.id) });
-  if (awards.length === 0 && opps.length) obs.push({ text: `No award outcomes recorded for this buyer in the dataset; incumbent positions are unknown.`, evidence: [] });
+  if (cancellationRate !== null && cancellationRate >= 0.25) obs.push({ text: t("{v0} of {v1} decided procedures were cancelled or unsuccessful — factor this into bid effort.", { v0: cancelled.length, v1: decided.length }), evidence: cancelled.map((o) => o.id) });
+  if (awards.length === 0 && opps.length) obs.push({ text: t("No award outcomes recorded for this buyer in the dataset; incumbent positions are unknown."), evidence: [] });
 
   return {
     summary, opportunities: opps, perYear, perQuarter, sectorMix, regions, procedures,

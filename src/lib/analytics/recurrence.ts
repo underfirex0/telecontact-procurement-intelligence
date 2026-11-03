@@ -18,6 +18,8 @@
  *     Levels: High ≥ 0.70, Medium ≥ 0.50, otherwise Low.
  *  Signals are analytical expectations, never official announcements.
  */
+import { t, tv } from "../i18n";
+import * as f from "../format";
 import { addDays, addMonths, diffDays } from "../dates";
 import type { Opportunity } from "../types";
 import { type Ctx, buyerName, sectorName } from "./context";
@@ -125,13 +127,20 @@ export function futureSignals(c: Ctx): FutureSignal[] {
     const confidence = clamp(occC + regC + conC + recC + penalty);
     const level = confidence >= 0.7 ? "High" : confidence >= 0.5 ? "Medium" : "Low";
     const incumbentId = lastAward?.companyId ?? null;
-    const fmtD = (d: string) => d;
-    const explanation =
-      `${s.buyerName} published ${n} ${s.sectorName.toLowerCase()} opportunities between ${fmtD(s.occurrences[0].publicationDate!)} and ${fmtD(lastPub)}, ` +
-      `with a median interval of ${s.medianIntervalDays} days${s.intervalsDays.length >= 2 ? ` (CV ${s.cv!.toFixed(2)}, ${s.regularity.toLowerCase()})` : " (one interval only)"}. ` +
-      `Projecting that interval from the last publication gives ${expected} (window ±${half} days).` +
-      (contractEnd ? ` The latest recorded award (${lastAward!.durationMonths}-month contract) ends around ${contractEnd}${contractAligned ? ", consistent with the projected window" : ", which does not align with the projection"}.` : " No contract duration evidence is available for this line.") +
-      (state === "Overdue" ? " The window has passed without a captured publication: the need may have been dropped, delayed or published outside the monitored sources." : "");
+    const sentences = [
+      t("{buyer} published {n} {sector} opportunities between {first} and {last}.", { buyer: s.buyerName, n, sector: s.sectorName.toLowerCase(), first: f.date(s.occurrences[0].publicationDate!), last: f.date(lastPub) }),
+      s.intervalsDays.length >= 2
+        ? t("The median interval is {days} days (CV {cv}, {regularity}).", { days: s.medianIntervalDays, cv: f.fixed(s.cv!, 2), regularity: tv(s.regularity).toLowerCase() })
+        : t("The median interval is {days} days (one interval only).", { days: s.medianIntervalDays }),
+      t("Projecting that interval from the last publication gives {date} (window ±{half} days).", { date: f.date(expected), half }),
+      contractEnd
+        ? contractAligned
+          ? t("The latest recorded award ({months}-month contract) ends around {date}, consistent with the projected window.", { months: lastAward!.durationMonths, date: f.date(contractEnd) })
+          : t("The latest recorded award ({months}-month contract) ends around {date}, which does not align with the projection.", { months: lastAward!.durationMonths, date: f.date(contractEnd) })
+        : t("No contract duration evidence is available for this line."),
+      ...(state === "Overdue" ? [t("The window has passed without a captured publication: the need may have been dropped, delayed or published outside the monitored sources.")] : []),
+    ];
+    const explanation = sentences.join(" ");
 
     out.push({
       id: `SIG-${s.buyerId}-${s.sectorId}`,
@@ -142,11 +151,11 @@ export function futureSignals(c: Ctx): FutureSignal[] {
       expectedValue: s.medianValue,
       incumbent: incumbentId ? { id: incumbentId, name: c.company.get(incumbentId)?.name ?? incumbentId } : null,
       components: [
-        { label: `Occurrences (n=${n})`, value: occC },
-        { label: "Interval regularity", value: regC },
-        { label: "Contract-end alignment", value: conC },
-        { label: "Recent activity", value: recC },
-        { label: "Overdue penalty", value: penalty },
+        { label: t("Occurrences (n={v0})", { v0: n }), value: occC },
+        { label: t("Interval regularity"), value: regC },
+        { label: t("Contract-end alignment"), value: conC },
+        { label: t("Recent activity"), value: recC },
+        { label: t("Overdue penalty"), value: penalty },
       ],
       explanation,
     });

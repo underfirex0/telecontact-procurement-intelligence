@@ -1,4 +1,5 @@
 "use client";
+import { t, tv } from "@/lib/i18n";
 import { useState } from "react";
 import { getContext } from "@/lib/services/data-service";
 import { nextId, useContacts, useSuppliers, useWorkspace } from "@/lib/services/workspace";
@@ -53,7 +54,7 @@ export function SupplierFormModal({ open, onClose, supplier, onSaved }: { open: 
     if (errs.length) return;
     if (supplier) {
       dispatch({ type: "updateSupplier", id: supplier.id, patch });
-      toast("Supplier profile updated");
+      toast(t("Supplier profile updated"));
       onSaved?.(supplier.id);
     } else {
       const id = nextId("SUP", suppliers);
@@ -66,7 +67,7 @@ export function SupplierFormModal({ open, onClose, supplier, onSaved }: { open: 
         provenance: { synthetic: true, source: "User-entered demo record", generator: "workspace", seed: 0, createdAt: c.ref },
       };
       dispatch({ type: "createSupplier", supplier: s, contact });
-      toast(`Supplier ${s.name} created`);
+      toast(t("Supplier {v0} created", { v0: s.name }));
       onSaved?.(id);
     }
     onClose();
@@ -77,47 +78,47 @@ export function SupplierFormModal({ open, onClose, supplier, onSaved }: { open: 
   );
 
   return (
-    <Modal open={open} onClose={onClose} width="max-w-3xl" title={supplier ? `Edit ${supplier.name}` : "New supplier / partner"}
-      footer={<><button className="btn" onClick={onClose}>Cancel</button><button className="btn-primary" onClick={submit}>{supplier ? "Save changes" : "Create supplier"}</button></>}>
+    <Modal open={open} onClose={onClose} width="max-w-3xl" title={supplier ? t("Edit {v0}", { v0: supplier.name }) : t("New supplier / partner")}
+      footer={<><button className="btn" onClick={onClose}>{t("Cancel")}</button><button className="btn-primary" onClick={submit}>{supplier ? t("Save changes") : t("Create supplier")}</button></>}>
       {errors.length > 0 && <div className="mb-3 rounded-[5px] bg-signal-badbg px-3 py-2 text-[12.5px] text-signal-bad">{errors.map((e) => <div key={e}>• {e}</div>)}</div>}
-      <p className="mb-4 text-[12px] text-ink-500">Demo workspace record — stored in this browser only. Do not enter real personal data.</p>
+      <p className="mb-4 text-[12px] text-ink-500">{t("Demo workspace record — stored in this browser only. Do not enter real personal data.")}</p>
       <div className="grid gap-3 sm:grid-cols-3">
-        {F({ label: "Company name *", span: 2, children: <input className="field" value={d.name} onChange={(e) => set({ name: e.target.value })} /> })}
-        {F({ label: "Relationship stage", children: <select className="field" value={d.status} onChange={(e) => set({ status: e.target.value as RelationshipStage })}>{RELATIONSHIP_STAGES.map((s) => <option key={s}>{s}</option>)}</select> })}
-        {F({ label: "Description", span: 3, children: <textarea className="field" rows={2} value={d.description} onChange={(e) => set({ description: e.target.value })} /> })}
-        {F({ label: "Country *", children: <select className="field" value={d.country} onChange={(e) => set({ country: e.target.value })}>{COUNTRIES.map((x) => <option key={x}>{x}</option>)}</select> })}
-        {F({ label: "City", children: <input className="field" value={d.city} onChange={(e) => set({ city: e.target.value })} /> })}
-        {F({ label: "Capacity score (1–5)", children: <input type="number" min={1} max={5} className="field" value={d.capacityScore} onChange={(e) => set({ capacityScore: Number(e.target.value) })} /> })}
+        {F({ label: t("Company name *"), span: 2, children: <input className="field" value={tv(d.name)} onChange={(e) => set({ name: e.target.value })} /> })}
+        {F({ label: t("Relationship stage"), children: <select className="field" value={d.status} onChange={(e) => set({ status: e.target.value as RelationshipStage })}>{RELATIONSHIP_STAGES.map((s) => <option key={s} value={s}>{tv(s)}</option>)}</select> })}
+        {F({ label: t("Description"), span: 3, children: <textarea className="field" rows={2} value={d.description} onChange={(e) => set({ description: e.target.value })} /> })}
+        {F({ label: t("Country *"), children: <select className="field" value={d.country} onChange={(e) => set({ country: e.target.value })}>{COUNTRIES.map((x) => <option key={x} value={x}>{tv(x)}</option>)}</select> })}
+        {F({ label: t("City"), children: <input className="field" value={d.city} onChange={(e) => set({ city: e.target.value })} /> })}
+        {F({ label: t("Capacity score (1–5)"), children: <input type="number" min={1} max={5} className="field" value={d.capacityScore} onChange={(e) => set({ capacityScore: Number(e.target.value) })} /> })}
       </div>
-      <div className="mt-3"><span className="label">Sectors * (first selected = primary)</span>
+      <div className="mt-3"><span className="label">{t("Sectors * (first selected = primary)")}</span>
         <div className="flex flex-wrap gap-1.5">{c.ds.sectors.map((s) => {
           const on = d.sectorIds.includes(s.id);
           return <button type="button" key={s.id} onClick={() => set({ sectorIds: on ? d.sectorIds.filter((x) => x !== s.id) : [...d.sectorIds, s.id] })} className={`rounded-[4px] border px-2 py-0.5 text-[12px] ${on ? "border-ink-900 bg-ink-900 text-white" : "border-line-strong text-ink-600 hover:border-ink-400"}`}>{s.name}</button>;
         })}</div>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
-        {F({ label: "Services (comma-separated)", span: 2, children: <input className="field" value={d.services} onChange={(e) => set({ services: e.target.value })} /> })}
-        {F({ label: "Specialisation", children: <input className="field" value={d.specialisation} onChange={(e) => set({ specialisation: e.target.value })} /> })}
-        {F({ label: "Geographic coverage (countries, comma-separated)", span: 3, children: <input className="field" value={d.coverage} onChange={(e) => set({ coverage: e.target.value })} /> })}
-        {F({ label: "Website", children: <input className="field" placeholder="https://…" value={d.website} onChange={(e) => set({ website: e.target.value })} /> })}
-        {F({ label: "Phone", children: <input className="field" value={d.phone} onChange={(e) => set({ phone: e.target.value })} /> })}
-        {F({ label: "Email", children: <input className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /> })}
-        {F({ label: "Address", span: 3, children: <input className="field" value={d.address} onChange={(e) => set({ address: e.target.value })} /> })}
-        {F({ label: "Relationship owner", children: <select className="field" value={d.relationshipOwner} onChange={(e) => set({ relationshipOwner: e.target.value })}>{TEAM.map((t) => <option key={t}>{t}</option>)}</select> })}
-        {F({ label: "First contact", children: <input type="date" className="field" value={d.firstContactDate} onChange={(e) => set({ firstContactDate: e.target.value })} /> })}
-        {F({ label: "Last interaction", children: <input type="date" className="field" value={d.lastInteraction} onChange={(e) => set({ lastInteraction: e.target.value })} /> })}
-        {F({ label: "Follow-up date", children: <input type="date" className="field" value={d.followUpDate} onChange={(e) => set({ followUpDate: e.target.value })} /> })}
-        {F({ label: "Previous cooperation", span: 2, children: <input className="field" value={d.previousCooperation} onChange={(e) => set({ previousCooperation: e.target.value })} /> })}
-        {F({ label: "Notes", span: 3, children: <textarea className="field" rows={2} value={d.notes} onChange={(e) => set({ notes: e.target.value })} /> })}
+        {F({ label: t("Services (comma-separated)"), span: 2, children: <input className="field" value={d.services} onChange={(e) => set({ services: e.target.value })} /> })}
+        {F({ label: t("Specialisation"), children: <input className="field" value={d.specialisation} onChange={(e) => set({ specialisation: e.target.value })} /> })}
+        {F({ label: t("Geographic coverage (countries, comma-separated)"), span: 3, children: <input className="field" value={d.coverage} onChange={(e) => set({ coverage: e.target.value })} /> })}
+        {F({ label: t("Website"), children: <input className="field" placeholder={t("https://…")} value={d.website} onChange={(e) => set({ website: e.target.value })} /> })}
+        {F({ label: t("Phone"), children: <input className="field" value={d.phone} onChange={(e) => set({ phone: e.target.value })} /> })}
+        {F({ label: t("Email"), children: <input className="field" value={d.email} onChange={(e) => set({ email: e.target.value })} /> })}
+        {F({ label: t("Address"), span: 3, children: <input className="field" value={d.address} onChange={(e) => set({ address: e.target.value })} /> })}
+        {F({ label: t("Relationship owner"), children: <select className="field" value={d.relationshipOwner} onChange={(e) => set({ relationshipOwner: e.target.value })}>{TEAM.map((tx) => <option key={tx} value={tx}>{tv(tx)}</option>)}</select> })}
+        {F({ label: t("First contact"), children: <input type="date" className="field" value={d.firstContactDate} onChange={(e) => set({ firstContactDate: e.target.value })} /> })}
+        {F({ label: t("Last interaction"), children: <input type="date" className="field" value={d.lastInteraction} onChange={(e) => set({ lastInteraction: e.target.value })} /> })}
+        {F({ label: t("Follow-up date"), children: <input type="date" className="field" value={d.followUpDate} onChange={(e) => set({ followUpDate: e.target.value })} /> })}
+        {F({ label: t("Previous cooperation"), span: 2, children: <input className="field" value={d.previousCooperation} onChange={(e) => set({ previousCooperation: e.target.value })} /> })}
+        {F({ label: t("Notes"), span: 3, children: <textarea className="field" rows={2} value={d.notes} onChange={(e) => set({ notes: e.target.value })} /> })}
       </div>
       {!supplier && (
         <div className="mt-4 border-t border-line pt-3">
-          <div className="mb-2 text-[12px] font-semibold text-ink-700">Main contact (optional, fictional)</div>
+          <div className="mb-2 text-[12px] font-semibold text-ink-700">{t("Main contact (optional, fictional)")}</div>
           <div className="grid gap-3 sm:grid-cols-4">
-            {F({ label: "Name", children: <input className="field" value={d.contactName} onChange={(e) => set({ contactName: e.target.value })} /> })}
-            {F({ label: "Role", children: <input className="field" value={d.contactRole} onChange={(e) => set({ contactRole: e.target.value })} /> })}
-            {F({ label: "Email", children: <input className="field" value={d.contactEmail} onChange={(e) => set({ contactEmail: e.target.value })} /> })}
-            {F({ label: "Phone", children: <input className="field" value={d.contactPhone} onChange={(e) => set({ contactPhone: e.target.value })} /> })}
+            {F({ label: t("Name"), children: <input className="field" value={d.contactName} onChange={(e) => set({ contactName: e.target.value })} /> })}
+            {F({ label: t("Role"), children: <input className="field" value={d.contactRole} onChange={(e) => set({ contactRole: e.target.value })} /> })}
+            {F({ label: t("Email"), children: <input className="field" value={d.contactEmail} onChange={(e) => set({ contactEmail: e.target.value })} /> })}
+            {F({ label: t("Phone"), children: <input className="field" value={d.contactPhone} onChange={(e) => set({ contactPhone: e.target.value })} /> })}
           </div>
         </div>
       )}

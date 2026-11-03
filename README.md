@@ -15,14 +15,14 @@ npm run dev          # http://localhost:3000
 ```
 
 ```bash
-npm test             # 27 unit tests: dataset coherence, analytics, reports, exports
+npm test             # 33 unit tests: dataset, analytics, reports, exports, translations
 ```
 
 ```bash
 npm run build && npm start   # production build
 ```
 
-End-to-end user journeys (14 steps, needs a running app and Playwright):
+End-to-end user journeys (15 steps, including the language switch, needs a running app and Playwright):
 
 ```bash
 npm i -D playwright && npx playwright install chromium
@@ -30,6 +30,10 @@ BASE_URL=http://localhost:3000 npm run test:e2e
 ```
 
 Requirements: Node.js 18.17+ (developed on Node 22). No database, environment variables or API keys are needed.
+
+## Languages
+
+The whole interface is available in **English and French**. Use the **EN | FR** switch in the top bar; the choice is remembered in the browser. Switching translates navigation, labels, analytical sentences (dossiers, observations, signal explanations), generated reports and exports, and applies French number, currency and date formats (e.g. `4,20 M MAD`, `3 nov. 2026`, `T3 2025`). Tender objects stay in French in both languages, as published in Morocco.
 
 ## What is inside
 

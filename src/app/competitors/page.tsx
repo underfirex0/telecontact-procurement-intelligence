@@ -1,4 +1,6 @@
 "use client";
+import { t, tv } from "@/lib/i18n";
+import { tn } from "@/lib/i18n/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -29,35 +31,35 @@ export default function CompetitorsPage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Module 04 · Competitor intelligence" title="Companies in the market"
-        description="Recorded bids and verified awards are tracked separately. Win rates are computed only where bidder lists and outcomes were disclosed."
-        meta={<><span>{all.length} fictional companies</span><span>{c.ds.participations.length} recorded participations</span><span>{c.ds.awards.length} verified awards</span></>}
-        actions={<button className="btn-primary" disabled={sel.length < 2} onClick={() => router.push(`/competitors/compare?ids=${sel.join(",")}`)}><GitCompare size={14} /> Compare {sel.length ? `(${sel.length})` : ""}</button>}>
+      <PageHeader eyebrow={t("Module 04 · Competitor intelligence")} title={t("Companies in the market")}
+        description={t("Recorded bids and verified awards are tracked separately. Win rates are computed only where bidder lists and outcomes were disclosed.")}
+        meta={<><span>{all.length} {t("fictional companies")}</span><span>{c.ds.participations.length} {t("recorded participations")}</span><span>{c.ds.awards.length} {t("verified awards")}</span></>}
+        actions={<button className="btn-primary" disabled={sel.length < 2} onClick={() => router.push(`/competitors/compare?ids=${sel.join(",")}`)}><GitCompare size={14} /> {t("Compare")} {sel.length ? `(${sel.length})` : ""}</button>}>
         <div className="flex flex-wrap gap-1.5">
-          <Chip active={!role} onClick={() => setRole("")}>All · {all.length}</Chip>
-          {(["Verified awardee", "Shortlisted participant", "Participant", "No recorded activity"] as CompanyRole[]).map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{r} · {roleCount(r)}</Chip>)}
+          <Chip active={!role} onClick={() => setRole("")}>{t("All · {n}", { n: all.length })}</Chip>
+          {(["Verified awardee", "Shortlisted participant", "Participant", "No recorded activity"] as CompanyRole[]).map((r) => <Chip key={r} active={role === r} onClick={() => setRole(r)}>{tv(r)} · {roleCount(r)}</Chip>)}
         </div>
       </PageHeader>
       <FilterBar>
-        <label className="block w-72"><span className="label !mb-0.5 !text-[11px]">Search</span>
-          <div className="relative"><Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400" /><input className="field !h-[30px] pl-8" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Company, city, identifier…" /></div>
+        <label className="block w-72"><span className="label !mb-0.5 !text-[11px]">{t("Search")}</span>
+          <div className="relative"><Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-400" /><input className="field !h-[30px] pl-8" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("Company, city, identifier…")} /></div>
         </label>
-        <SelectFilter label="Sector presence" value={sector} onChange={setSector} options={[{ value: "", label: "All sectors" }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name }))]} width="w-56" />
+        <SelectFilter label={t("Sector presence")} value={sector} onChange={setSector} options={[{ value: "", label: t("All sectors") }, ...c.ds.sectors.map((s) => ({ value: s.id, label: s.name }))]} width="w-56" />
       </FilterBar>
       <div className="px-5 py-5 md:px-8">
-        <div className="mb-4"><Note>Roles: <b>Verified awardee</b> — at least one recorded award. <b>Shortlisted participant</b> — shortlisted, never awarded. <b>Participant</b> — recorded bids only. A company can appear as a participant on many tenders without winning.</Note></div>
+        <div className="mb-4"><Note>{tn("Roles: {a} — at least one recorded award. {b} — shortlisted, never awarded. {c} — recorded bids only. A company can appear as a participant on many tenders without winning.", { a: <b>{t("Verified awardee")}</b>, b: <b>{t("Shortlisted participant")}</b>, c: <b>{t("Participant")}</b> })}</Note></div>
         <DataTable rows={rows} rowKey={(r) => r.id} rowHref={(r) => `/competitors/${r.id}`} pageSize={20} initialSort={{ key: "aw", dir: "desc" }} selected={(r) => sel.includes(r.id)}
           columns={[
-            { key: "sel", header: "", width: "32px", render: (r) => <input type="checkbox" aria-label={`Select ${r.name}`} checked={sel.includes(r.id)} onChange={() => toggle(r.id)} disabled={!sel.includes(r.id) && sel.length >= 3} /> },
-            { key: "n", header: "Company", sort: (r) => r.name, width: "28%", render: (r) => <div><Link href={`/competitors/${r.id}`} className="font-medium hover:text-accent-700">{r.name}</Link><div className="text-[11.5px] text-ink-500">{r.primarySector} · {r.city} · {r.size}</div></div> },
-            { key: "role", header: "Role", sort: (r) => r.role, render: (r) => <Badge tone={ROLE_TONE[r.role]}>{r.role}</Badge> },
-            { key: "p", header: "Bids", align: "right", sort: (r) => r.participations, render: (r) => r.participations || <span className="text-ink-400">0</span> },
-            { key: "wr", header: "Win rate", align: "right", sort: (r) => r.winRate, render: (r) => r.winRate === null ? <span className="text-ink-400">n/a</span> : <span title={`${r.wins} of ${r.decided} decided`}>{f.pct(r.winRate)} <span className="text-[11px] text-ink-400">({r.wins}/{r.decided})</span></span> },
-            { key: "aw", header: "Awards", align: "right", sort: (r) => r.awards, render: (r) => r.awards || <span className="text-ink-400">0</span> },
-            { key: "v", header: "Award value", align: "right", sort: (r) => r.awardValue, render: (r) => (r.awardValue ? f.mad(r.awardValue, { unit: false }) : <span className="text-ink-400">—</span>) },
-            { key: "b", header: "Buyers", align: "right", hideBelow: "lg", sort: (r) => r.buyers, render: (r) => r.buyers },
-            { key: "rb", header: "Repeat buyers", align: "right", hideBelow: "lg", sort: (r) => r.repeatBuyers, render: (r) => r.repeatBuyers },
-            { key: "la", header: "Last award", hideBelow: "xl", sort: (r) => r.lastAward, render: (r) => <span className="tnum text-[12px]">{f.shortDate(r.lastAward)}</span> },
+            { key: "sel", header: "", width: "32px", render: (r) => <input type="checkbox" aria-label={t("Select {v0}", { v0: r.name })} checked={sel.includes(r.id)} onChange={() => toggle(r.id)} disabled={!sel.includes(r.id) && sel.length >= 3} /> },
+            { key: "n", header: t("Company"), sort: (r) => r.name, width: "28%", render: (r) => <div><Link href={`/competitors/${r.id}`} className="font-medium hover:text-accent-700">{r.name}</Link><div className="text-[11.5px] text-ink-500">{tv(r.primarySector)} · {r.city} · {tv(r.size)}</div></div> },
+            { key: "role", header: t("Role"), sort: (r) => r.role, render: (r) => <Badge tone={ROLE_TONE[r.role]}>{tv(r.role)}</Badge> },
+            { key: "p", header: t("Bids"), align: "right", sort: (r) => r.participations, render: (r) => r.participations || <span className="text-ink-400">0</span> },
+            { key: "wr", header: t("Win rate"), align: "right", sort: (r) => r.winRate, render: (r) => r.winRate === null ? <span className="text-ink-400">{t("n/a")}</span> : <span title={t("{v0} of {v1} decided", { v0: r.wins, v1: r.decided })}>{f.pct(r.winRate)} <span className="text-[11px] text-ink-400">({r.wins}/{r.decided})</span></span> },
+            { key: "aw", header: t("Awards"), align: "right", sort: (r) => r.awards, render: (r) => r.awards || <span className="text-ink-400">0</span> },
+            { key: "v", header: t("Award value"), align: "right", sort: (r) => r.awardValue, render: (r) => (r.awardValue ? f.mad(r.awardValue, { unit: false }) : <span className="text-ink-400">—</span>) },
+            { key: "b", header: t("Buyers"), align: "right", hideBelow: "lg", sort: (r) => r.buyers, render: (r) => r.buyers },
+            { key: "rb", header: t("Repeat buyers"), align: "right", hideBelow: "lg", sort: (r) => r.repeatBuyers, render: (r) => r.repeatBuyers },
+            { key: "la", header: t("Last award"), hideBelow: "xl", sort: (r) => r.lastAward, render: (r) => <span className="tnum text-[12px]">{f.shortDate(r.lastAward)}</span> },
           ]} />
       </div>
     </div>

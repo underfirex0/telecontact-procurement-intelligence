@@ -15,7 +15,7 @@
 - Similarity uses simple text features (word overlap), not semantic matching.
 - Talent module stores only demo entries; consent capture exists, but retention, access and erasure workflows are not implemented.
 - Desktop-first: mobile and tablet are usable (no horizontal overflow; secondary table columns hidden), but dense tables are best on desktop.
-- Interface language is English; tender objects and procedures are in French as in Moroccan practice.
+- Languages: English and French. Tender objects, procedures and Moroccan document names stay in French in both languages (as published). Text typed by users (notes, meeting subjects, registrations) is stored as typed and is not translated. In exports, column headers of CSV/Excel tables stay in English (stable machine-readable keys); titles, findings, summaries and the disclaimer follow the selected language.
 
 ## Not implemented by design
 No VPS, production database, scraping, external APIs, AI services or real Telecontact data. The prototype is not an officially launched or approved Telecontact product.
